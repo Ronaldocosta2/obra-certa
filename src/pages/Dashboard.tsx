@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Link } from "react-router-dom";
+import { VirtualAssistant } from "@/components/VirtualAssistant";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell,
@@ -208,6 +209,8 @@ export default function Dashboard() {
           ))}
         </div>
       </div>
+
+      <VirtualAssistant />
     </div>
   );
 }
