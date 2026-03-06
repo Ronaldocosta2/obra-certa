@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { mockObras, mockAtividades, mockDespesas, formatCurrency, formatDate, statusConfig } from "@/data/mockData";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, MapPin, Calendar, User, DollarSign, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
+import { ArrowLeft, MapPin, Calendar, User, DollarSign, CheckCircle2, Clock, AlertTriangle, Plus } from "lucide-react";
 import { useState } from "react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -23,9 +23,40 @@ export default function ObraDetailPage() {
     );
   }
 
-  const atividades = mockAtividades.filter(a => a.obraId === obra.id);
+  const initialAtividades = mockAtividades.filter(a => a.obraId === obra.id);
+  const [atividades, setAtividades] = useState(initialAtividades);
   const despesas = mockDespesas.filter(d => d.obraId === obra.id);
   const desvio = ((obra.custoRealizado / obra.valorTotal) * 100 - obra.progresso).toFixed(1);
+
+  // New states for form
+  const [novaAtividade, setNovaAtividade] = useState({
+    nome: "",
+    responsavel: "",
+    dataInicio: "",
+    dataFim: "",
+  });
+
+  const handleAddAtividade = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!novaAtividade.nome || !novaAtividade.dataInicio || !novaAtividade.dataFim) return;
+
+    const newTask = {
+      id: Math.random().toString(36).substr(2, 9),
+      obraId: obra.id,
+      nome: novaAtividade.nome,
+      descricao: "",
+      responsavel: novaAtividade.responsavel || "Não definido",
+      dataInicio: novaAtividade.dataInicio,
+      dataFim: novaAtividade.dataFim,
+      duracao: 0,
+      percentualConcluido: 0,
+      dependencias: [],
+      status: "pendente" as const,
+    };
+
+    setAtividades([...atividades, newTask]);
+    setNovaAtividade({ nome: "", responsavel: "", dataInicio: "", dataFim: "" });
+  };
 
   return (
     <div className="space-y-6">
@@ -64,11 +95,10 @@ export default function ObraDetailPage() {
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === tab
+            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${activeTab === tab
                 ? "border-primary text-primary"
                 : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
+              }`}
           >
             {tab}
           </button>
@@ -102,9 +132,65 @@ export default function ObraDetailPage() {
       )}
 
       {activeTab === "Cronograma" && (
-        <div className="space-y-3">
+        <div className="space-y-4">
+
+          {/* Quick Add Form */}
+          <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
+            <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+              <Plus className="w-4 h-4 text-primary" /> Adicionar Atividade
+            </h3>
+            <form onSubmit={handleAddAtividade} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 items-end">
+              <div className="space-y-1.5 md:col-span-2">
+                <label className="text-xs font-medium text-muted-foreground">Nome da Atividade *</label>
+                <input
+                  required
+                  type="text"
+                  placeholder="Ex: Pintura interna"
+                  className="w-full flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50"
+                  value={novaAtividade.nome}
+                  onChange={(e) => setNovaAtividade({ ...novaAtividade, nome: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">Responsável</label>
+                <input
+                  type="text"
+                  placeholder="Ex: Equipe A"
+                  className="w-full flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+                  value={novaAtividade.responsavel}
+                  onChange={(e) => setNovaAtividade({ ...novaAtividade, responsavel: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">Início *</label>
+                <input
+                  required
+                  type="date"
+                  className="w-full flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+                  value={novaAtividade.dataInicio}
+                  onChange={(e) => setNovaAtividade({ ...novaAtividade, dataInicio: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">Fim *</label>
+                <div className="flex gap-2 items-center">
+                  <input
+                    required
+                    type="date"
+                    className="w-full flex h-9 flex-1 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+                    value={novaAtividade.dataFim}
+                    onChange={(e) => setNovaAtividade({ ...novaAtividade, dataFim: e.target.value })}
+                  />
+                  <button type="submit" className="h-9 px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50">
+                    Adicionar
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+
           {atividades.length === 0 ? (
-            <p className="text-muted-foreground text-center py-8">Nenhuma atividade cadastrada.</p>
+            <p className="text-muted-foreground text-center py-8">Nenhuma atividade cadastrada. Crie a primeira acima!</p>
           ) : (
             <>
               {/* Simple Gantt-like view */}
