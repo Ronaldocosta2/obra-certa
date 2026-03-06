@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { MessageSquare, X, Send, Bot, User } from "lucide-react";
+import { mockObras, mockAtividades, mockDespesas, formatCurrency } from "@/data/mockData";
 
 interface Message {
   id: string;
@@ -39,9 +40,35 @@ export function VirtualAssistant() {
 
     // Simulate bot response
     setTimeout(() => {
+      let responseText = "Desculpe, ainda estou aprendendo. Posso ajudar com informações sobre a quantidade de obras, status (em andamento), custos gerais, despesas, atividades e tarefas atrasadas. O que você gostaria de saber?";
+      const lowerQuery = inputValue.toLowerCase();
+
+      if (lowerQuery.includes("quantas obras") || lowerQuery.includes("total de obras")) {
+        responseText = `Atualmente, temos ${mockObras.length} obras cadastradas no sistema.`;
+      } else if (lowerQuery.includes("andamento")) {
+        const emAndamento = mockObras.filter(o => o.status === 'em_andamento').length;
+        responseText = `Temos ${emAndamento} obras em andamento no momento.`;
+      } else if (lowerQuery.includes("custo") || lowerQuery.includes("gasto") || lowerQuery.includes("valor")) {
+        const custoTotal = mockObras.reduce((sum, o) => sum + o.custoRealizado, 0);
+        const valorPlanejado = mockObras.reduce((sum, o) => sum + o.valorTotal, 0);
+        responseText = `O custo total realizado de todas as obras é de ${formatCurrency(custoTotal)}, de um total planejado de ${formatCurrency(valorPlanejado)}.`;
+      } else if (lowerQuery.includes("atrasada") || lowerQuery.includes("atraso")) {
+        const atrasadas = mockObras.reduce((sum, o) => sum + o.tarefasAtrasadas, 0);
+        responseText = atrasadas > 0 ? `Atenção: existem ${atrasadas} tarefas atrasadas no total.` : `Não há tarefas atrasadas no momento!`;
+      } else if (lowerQuery.includes("despesa") || lowerQuery.includes("despesas")) {
+        const totalDespesas = mockDespesas.reduce((sum, d) => sum + d.valor, 0);
+        responseText = `Temos ${mockDespesas.length} despesas registradas, totalizando ${formatCurrency(totalDespesas)}.`;
+      } else if (lowerQuery.includes("atividade") || lowerQuery.includes("atividades")) {
+        const concluidas = mockAtividades.filter(a => a.status === 'concluida').length;
+        responseText = `Temos ${mockAtividades.length} atividades cadastradas, das quais ${concluidas} já foram concluídas.`;
+      } else if (lowerQuery.includes("quais") && lowerQuery.includes("obras")) {
+        const nomes = mockObras.map(o => o.nome).join(', ');
+        responseText = `As obras cadastradas são: ${nomes}.`;
+      }
+
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
-        text: "Entendi! Como sou um assistente em desenvolvimento, ainda não posso executar ações complexas. Mas logo serei capaz de ajudar com relatórios, alertas de obras e muito mais!",
+        text: responseText,
         sender: "bot",
       };
       setMessages((prev) => [...prev, botResponse]);
@@ -88,11 +115,10 @@ export function VirtualAssistant() {
                   </div>
                 )}
                 <div
-                  className={`max-w-[75%] px-4 py-2.5 text-sm shadow-sm ${
-                    msg.sender === "user"
+                  className={`max-w-[75%] px-4 py-2.5 text-sm shadow-sm ${msg.sender === "user"
                       ? "bg-primary text-primary-foreground rounded-2xl rounded-br-sm"
                       : "bg-background text-foreground border rounded-2xl rounded-bl-sm"
-                  }`}
+                    }`}
                 >
                   {msg.text}
                 </div>
