@@ -53,6 +53,13 @@ const stats = [
     trend: 'up' as const,
   },
   {
+    label: 'Pedreiros Atuantes',
+    value: totalPedreiros,
+    icon: HardHat,
+    sub: 'em todas as obras',
+    trend: 'up' as const,
+  },
+  {
     label: 'Progresso Médio',
     value: `${progressoMedio}%`,
     icon: TrendingUp,

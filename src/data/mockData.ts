@@ -162,6 +162,7 @@ export const mockObras: Obra[] = [
     tarefasTotal: 45,
     tarefasConcluidas: 28,
     tarefasAtrasadas: 2,
+    pedreirosAtuantes: 0,
   },
 ];
 
