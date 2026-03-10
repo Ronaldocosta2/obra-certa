@@ -19,6 +19,7 @@ export interface Obra {
   tarefasTotal: number;
   tarefasConcluidas: number;
   tarefasAtrasadas: number;
+  pedreirosAtuantes: number;
 }
 
 export interface Atividade {
@@ -77,6 +78,7 @@ export const mockObras: Obra[] = [
     tarefasTotal: 120,
     tarefasConcluidas: 54,
     tarefasAtrasadas: 3,
+    pedreirosAtuantes: 18,
   },
   {
     id: '2',
@@ -97,6 +99,7 @@ export const mockObras: Obra[] = [
     tarefasTotal: 95,
     tarefasConcluidas: 27,
     tarefasAtrasadas: 5,
+    pedreirosAtuantes: 12,
   },
   {
     id: '3',
@@ -117,6 +120,7 @@ export const mockObras: Obra[] = [
     tarefasTotal: 80,
     tarefasConcluidas: 80,
     tarefasAtrasadas: 0,
+    pedreirosAtuantes: 0,
   },
   {
     id: '4',
@@ -137,6 +141,7 @@ export const mockObras: Obra[] = [
     tarefasTotal: 200,
     tarefasConcluidas: 10,
     tarefasAtrasadas: 0,
+    pedreirosAtuantes: 4,
   },
   {
     id: '5',
@@ -157,6 +162,7 @@ export const mockObras: Obra[] = [
     tarefasTotal: 45,
     tarefasConcluidas: 28,
     tarefasAtrasadas: 2,
+    pedreirosAtuantes: 0,
   },
 ];
 

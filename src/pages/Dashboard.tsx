@@ -3,7 +3,7 @@ import {
   Building2,
   TrendingUp,
   AlertTriangle,
-  CheckCircle2,
+  HardHat,
   Clock,
   DollarSign,
   ArrowUpRight,
@@ -22,6 +22,7 @@ const totalObras = mockObras.length;
 const totalTarefasAtrasadas = mockObras.reduce((s, o) => s + o.tarefasAtrasadas, 0);
 const totalCustoRealizado = mockObras.reduce((s, o) => s + o.custoRealizado, 0);
 const totalValor = mockObras.reduce((s, o) => s + o.valorTotal, 0);
+const totalPedreiros = mockObras.reduce((s, o) => s + o.pedreirosAtuantes, 0);
 const progressoMedio = Math.round(mockObras.filter(o => o.status !== 'finalizada').reduce((s, o) => s + o.progresso, 0) / Math.max(mockObras.filter(o => o.status !== 'finalizada').length, 1));
 
 const custoPorCategoria = [
@@ -49,6 +50,13 @@ const stats = [
     value: totalObras,
     icon: Building2,
     sub: `${obrasAtivas.length} ativas`,
+    trend: 'up' as const,
+  },
+  {
+    label: 'Pedreiros Atuantes',
+    value: totalPedreiros,
+    icon: HardHat,
+    sub: 'em todas as obras',
     trend: 'up' as const,
   },
   {
@@ -84,7 +92,7 @@ export default function Dashboard() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
         {stats.map((s) => (
           <div key={s.label} className="stat-card flex flex-col gap-3">
             <div className="flex items-center justify-between">
