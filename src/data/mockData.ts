@@ -99,6 +99,7 @@ export const mockObras: Obra[] = [
     tarefasTotal: 95,
     tarefasConcluidas: 27,
     tarefasAtrasadas: 5,
+    pedreirosAtuantes: 12,
   },
   {
     id: '3',
