@@ -3,7 +3,7 @@ import {
   Building2,
   TrendingUp,
   AlertTriangle,
-  CheckCircle2,
+  HardHat,
   Clock,
   DollarSign,
   ArrowUpRight,
