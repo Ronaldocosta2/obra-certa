@@ -19,6 +19,7 @@ export interface Obra {
   tarefasTotal: number;
   tarefasConcluidas: number;
   tarefasAtrasadas: number;
+  pedreirosAtuantes: number;
 }
 
 export interface Atividade {
