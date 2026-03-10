@@ -22,6 +22,7 @@ const totalObras = mockObras.length;
 const totalTarefasAtrasadas = mockObras.reduce((s, o) => s + o.tarefasAtrasadas, 0);
 const totalCustoRealizado = mockObras.reduce((s, o) => s + o.custoRealizado, 0);
 const totalValor = mockObras.reduce((s, o) => s + o.valorTotal, 0);
+const totalPedreiros = mockObras.reduce((s, o) => s + o.pedreirosAtuantes, 0);
 const progressoMedio = Math.round(mockObras.filter(o => o.status !== 'finalizada').reduce((s, o) => s + o.progresso, 0) / Math.max(mockObras.filter(o => o.status !== 'finalizada').length, 1));
 
 const custoPorCategoria = [
