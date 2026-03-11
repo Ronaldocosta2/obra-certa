@@ -292,7 +292,10 @@ const CronogramaPage = () => {
       <div key={task.id}>
         <div className="flex border-b border-border/40 hover:bg-accent/5 group min-h-[40px]">
           {/* Task list side */}
-          <div className="flex items-center gap-1 flex-shrink-0 bg-card z-20 relative" style={{ width: "45%", minWidth: 450 }}>
+          <div 
+            className="flex items-center gap-1 flex-shrink-0 bg-background z-20 relative sticky left-0 border-r border-border/40 pl-2 lg:pl-0" 
+            style={{ width: 550 }}
+          >
             <div className="w-6 flex items-center justify-center opacity-0 group-hover:opacity-60 cursor-grab">
               <GripVertical className="w-3.5 h-3.5" />
             </div>
@@ -340,7 +343,7 @@ const CronogramaPage = () => {
           </div>
 
           {/* Gantt side */}
-          <div className="flex-1 relative min-w-[500px] border-l border-border/40 overflow-hidden">
+          <div className="flex-1 relative min-w-[500px] overflow-hidden">
             {/* Month grid lines */}
             {monthMarkers.map((m, i) => (
               <div
@@ -558,12 +561,11 @@ const CronogramaPage = () => {
 
       {/* Gantt + Table hybrid */}
       <div className="stat-card p-0 overflow-hidden">
-        <div className="overflow-x-auto">
-          {/* Header */}
-          <div className="flex border-b border-border bg-muted/80 min-h-[40px] sticky top-0 z-30">
+        <div className="overflow-x-auto w-full">
+          <div className="flex border-b border-border bg-muted/80 min-h-[40px] isolate w-max sm:w-full min-w-max">
             <div
-              className="flex items-center gap-1 flex-shrink-0 px-2 bg-muted/80 backdrop-blur-sm z-20 sticky left-0 border-r border-border/40"
-              style={{ width: "45%", minWidth: 450 }}
+              className="flex items-center gap-1 flex-shrink-0 px-2 bg-muted/80 backdrop-blur-sm z-30 sticky left-0 border-r border-border/40"
+              style={{ width: 550 }}
             >
               <div className="w-6" />
               <div className="w-5" />
@@ -590,27 +592,29 @@ const CronogramaPage = () => {
               </div>
             </div>
             {/* Gantt header - month markers */}
-            <div className="flex-1 relative min-w-[500px] border-l border-border/40 bg-muted/80">
+            <div className="flex-1 relative min-w-[500px] bg-muted/80">
               {monthMarkers.map((m, i) => (
-                <span
+                 <span
                   key={i}
-                  className="absolute top-1/2 -translate-y-1/2 text-[9px] text-muted-foreground font-medium"
-                  style={{ left: `${m.leftPercent}%`, paddingLeft: 4 }}
-                >
-                  {m.label}
-                </span>
-              ))}
+                   className="absolute top-1/2 -translate-y-1/2 text-[9px] text-muted-foreground font-medium"
+                   style={{ left: `${m.leftPercent}%`, paddingLeft: 4 }}
+                 >
+                   {m.label}
+                 </span>
+               ))}
             </div>
           </div>
 
           {/* Rows */}
-          {rootTasks.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground text-sm">
-              Nenhuma atividade cadastrada. Clique em "Nova Atividade" para começar.
-            </div>
-          ) : (
-            <div>{rootTasks.map((task) => renderTaskRow(task))}</div>
-          )}
+          <div className="relative w-max sm:w-full min-w-max z-0 flex flex-col">
+            {rootTasks.length === 0 ? (
+               <div className="text-center py-12 text-muted-foreground text-sm">
+                 Nenhuma atividade cadastrada. Clique em "Nova Atividade" para começar.
+               </div>
+             ) : (
+               <div className="w-full">{rootTasks.map((task) => renderTaskRow(task))}</div>
+             )}
+          </div>
         </div>
       </div>
 
