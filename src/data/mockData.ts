@@ -34,6 +34,8 @@ export interface Atividade {
   percentualConcluido: number;
   dependencias: string[];
   status: 'pendente' | 'em_andamento' | 'concluida' | 'atrasada';
+  parentId?: string;
+  ordem: number;
 }
 
 export interface DiarioObra {
