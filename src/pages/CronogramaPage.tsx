@@ -99,12 +99,32 @@ const CronogramaPage = () => {
   const ganttRange = useMemo(() => {
     if (!obra) return { start: "", end: "", totalDays: 1 };
     const allTasks = atividades.filter((a) => a.obraId === selectedObraId);
-    if (allTasks.length === 0)
-      return { start: obra.dataInicio, end: obra.dataPrevistaConclusao, totalDays: diffDays(obra.dataInicio, obra.dataPrevistaConclusao) || 1 };
+    if (allTasks.length === 0) {
+      const startD = new Date(obra.dataInicio);
+      const endD = new Date(obra.dataPrevistaConclusao);
+      startD.setDate(startD.getDate() - 7);
+      endD.setDate(endD.getDate() + 14);
+      return { 
+        start: startD.toISOString().slice(0, 10), 
+        end: endD.toISOString().slice(0, 10), 
+        totalDays: diffDays(startD.toISOString().slice(0, 10), endD.toISOString().slice(0, 10)) || 1 
+      };
+    }
     const starts = allTasks.map((t) => t.dataInicio).sort();
     const ends = allTasks.map((t) => t.dataFim).sort();
-    const start = starts[0] < obra.dataInicio ? starts[0] : obra.dataInicio;
-    const end = ends[ends.length - 1] > obra.dataPrevistaConclusao ? ends[ends.length - 1] : obra.dataPrevistaConclusao;
+    
+    // Create base dates and add padding for the visual chart (7 days before, 14 days after)
+    const rawStart = starts[0] < obra.dataInicio ? starts[0] : obra.dataInicio;
+    const rawEnd = ends[ends.length - 1] > obra.dataPrevistaConclusao ? ends[ends.length - 1] : obra.dataPrevistaConclusao;
+    
+    const startObj = new Date(rawStart);
+    const endObj = new Date(rawEnd);
+    startObj.setDate(startObj.getDate() - 7);
+    endObj.setDate(endObj.getDate() + 14);
+
+    const start = startObj.toISOString().slice(0, 10);
+    const end = endObj.toISOString().slice(0, 10);
+
     return { start, end, totalDays: diffDays(start, end) || 1 };
   }, [obra, atividades, selectedObraId]);
 
@@ -116,7 +136,7 @@ const CronogramaPage = () => {
     const current = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
     while (current <= endDate) {
       const dayOffset = diffDays(ganttRange.start, current.toISOString().slice(0, 10));
-      if (dayOffset >= 0) {
+      if (dayOffset >= 0 && dayOffset <= ganttRange.totalDays) {
         markers.push({
           label: current.toLocaleDateString("pt-BR", { month: "short", year: "2-digit" }),
           leftPercent: (dayOffset / ganttRange.totalDays) * 100,
@@ -272,7 +292,7 @@ const CronogramaPage = () => {
       <div key={task.id}>
         <div className="flex border-b border-border/40 hover:bg-accent/5 group min-h-[40px]">
           {/* Task list side */}
-          <div className="flex items-center gap-1 flex-shrink-0" style={{ width: "55%", minWidth: 500 }}>
+          <div className="flex items-center gap-1 flex-shrink-0 bg-card z-20 relative" style={{ width: "45%", minWidth: 450 }}>
             <div className="w-6 flex items-center justify-center opacity-0 group-hover:opacity-60 cursor-grab">
               <GripVertical className="w-3.5 h-3.5" />
             </div>
@@ -320,7 +340,7 @@ const CronogramaPage = () => {
           </div>
 
           {/* Gantt side */}
-          <div className="flex-1 relative min-w-[300px] border-l border-border/40">
+          <div className="flex-1 relative min-w-[500px] border-l border-border/40 overflow-hidden">
             {/* Month grid lines */}
             {monthMarkers.map((m, i) => (
               <div
@@ -346,9 +366,9 @@ const CronogramaPage = () => {
             {/* Bar */}
             <div className="absolute inset-0 flex items-center px-1">
               <div
-                className={`h-5 rounded-sm ${barColor} relative group/bar cursor-pointer transition-all`}
+                className={`h-6 rounded-md shadow-sm ${barColor} absolute group/bar cursor-pointer transition-all hover:brightness-110 hover:shadow-md border border-black/10`}
                 style={{
-                  marginLeft: `${Math.max(0, Math.min(leftPercent, 100))}%`,
+                  left: `${Math.max(0, Math.min(leftPercent, 100))}%`,
                   width: `${Math.max(1, Math.min(widthPercent, 100 - Math.max(0, leftPercent)))}%`,
                 }}
                 title={`${task.nome}: ${formatDate(task.dataInicio)} → ${formatDate(task.dataFim)} (${task.percentualConcluido}%)`}
@@ -356,12 +376,12 @@ const CronogramaPage = () => {
                 {/* Progress inside bar */}
                 {task.percentualConcluido > 0 && task.percentualConcluido < 100 && (
                   <div
-                    className="absolute top-0 left-0 h-full rounded-sm bg-foreground/15"
+                    className="absolute top-0 left-0 h-full rounded-l-sm bg-black/20"
                     style={{ width: `${task.percentualConcluido}%` }}
                   />
                 )}
-                {widthPercent > 8 && (
-                  <span className="absolute inset-0 flex items-center px-1.5 text-[9px] font-medium text-white truncate">
+                {widthPercent > 5 && (
+                  <span className="absolute inset-0 flex items-center px-2 text-[10px] font-semibold text-white truncate drop-shadow-md z-10">
                     {task.nome}
                   </span>
                 )}
@@ -371,20 +391,24 @@ const CronogramaPage = () => {
             {task.dependencias.map((depId) => {
               const dep = atividades.find((t) => t.id === depId);
               if (!dep) return null;
+              
               const depEnd = (diffDays(ganttRange.start, dep.dataFim) / ganttRange.totalDays) * 100;
-              const taskStart = (diffDays(ganttRange.start, task.dataInicio) / ganttRange.totalDays) * 100;
-              return (
-                <div
-                  key={depId}
-                  className="absolute top-1/2 h-0.5 bg-muted-foreground/30 z-5"
-                  style={{
-                    left: `${Math.min(depEnd, taskStart)}%`,
-                    width: `${Math.abs(taskStart - depEnd)}%`,
-                  }}
-                >
-                  <div className="absolute right-0 -top-1 w-0 h-0 border-l-4 border-t-2 border-b-2 border-l-muted-foreground/40 border-t-transparent border-b-transparent" />
-                </div>
-              );
+              const taskStart = leftPercent;
+              
+              // Only draw simple connecting line if task starts roughly after dependency
+              if (taskStart >= depEnd) {
+                return (
+                  <div
+                    key={depId}
+                    className="absolute top-1/2 h-[1px] border-t border-dashed border-muted-foreground/50 z-5"
+                    style={{
+                      left: `${depEnd}%`,
+                      width: `${taskStart - depEnd}%`,
+                    }}
+                  />
+                );
+              }
+              return null;
             })}
           </div>
         </div>
@@ -536,10 +560,10 @@ const CronogramaPage = () => {
       <div className="stat-card p-0 overflow-hidden">
         <div className="overflow-x-auto">
           {/* Header */}
-          <div className="flex border-b border-border bg-muted/30 min-h-[36px]">
+          <div className="flex border-b border-border bg-muted/80 min-h-[40px] sticky top-0 z-30">
             <div
-              className="flex items-center gap-1 flex-shrink-0 px-2"
-              style={{ width: "55%", minWidth: 500 }}
+              className="flex items-center gap-1 flex-shrink-0 px-2 bg-muted/80 backdrop-blur-sm z-20 sticky left-0 border-r border-border/40"
+              style={{ width: "45%", minWidth: 450 }}
             >
               <div className="w-6" />
               <div className="w-5" />
@@ -566,7 +590,7 @@ const CronogramaPage = () => {
               </div>
             </div>
             {/* Gantt header - month markers */}
-            <div className="flex-1 relative min-w-[300px] border-l border-border/40">
+            <div className="flex-1 relative min-w-[500px] border-l border-border/40 bg-muted/80">
               {monthMarkers.map((m, i) => (
                 <span
                   key={i}
