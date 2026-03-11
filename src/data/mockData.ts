@@ -169,14 +169,14 @@ export const mockObras: Obra[] = [
 ];
 
 export const mockAtividades: Atividade[] = [
-  { id: 'a1', obraId: '1', nome: 'Fundação', descricao: 'Execução das fundações', responsavel: 'Eq. Fundações', dataInicio: '2024-03-01', dataFim: '2024-05-15', duracao: 75, percentualConcluido: 100, dependencias: [], status: 'concluida' },
-  { id: 'a2', obraId: '1', nome: 'Estrutura - Térreo ao 5º', descricao: 'Estrutura dos primeiros pavimentos', responsavel: 'Eq. Estrutura', dataInicio: '2024-05-16', dataFim: '2024-08-30', duracao: 106, percentualConcluido: 100, dependencias: ['a1'], status: 'concluida' },
-  { id: 'a3', obraId: '1', nome: 'Estrutura - 6º ao 10º', descricao: 'Estrutura dos pavimentos intermediários', responsavel: 'Eq. Estrutura', dataInicio: '2024-09-01', dataFim: '2024-12-15', duracao: 105, percentualConcluido: 85, dependencias: ['a2'], status: 'em_andamento' },
-  { id: 'a4', obraId: '1', nome: 'Instalações Elétricas', descricao: 'Infraestrutura elétrica geral', responsavel: 'Eq. Elétrica', dataInicio: '2024-08-01', dataFim: '2025-03-30', duracao: 241, percentualConcluido: 40, dependencias: ['a2'], status: 'em_andamento' },
-  { id: 'a5', obraId: '1', nome: 'Instalações Hidráulicas', descricao: 'Infraestrutura hidráulica', responsavel: 'Eq. Hidráulica', dataInicio: '2024-08-15', dataFim: '2025-04-15', duracao: 243, percentualConcluido: 35, dependencias: ['a2'], status: 'atrasada' },
-  { id: 'a6', obraId: '1', nome: 'Alvenaria', descricao: 'Execução de alvenaria', responsavel: 'Eq. Alvenaria', dataInicio: '2024-10-01', dataFim: '2025-05-30', duracao: 241, percentualConcluido: 20, dependencias: ['a3'], status: 'em_andamento' },
-  { id: 'a7', obraId: '1', nome: 'Acabamentos', descricao: 'Acabamentos gerais', responsavel: 'Eq. Acabamento', dataInicio: '2025-03-01', dataFim: '2025-08-30', duracao: 183, percentualConcluido: 0, dependencias: ['a6'], status: 'pendente' },
-  { id: 'a8', obraId: '1', nome: 'Paisagismo', descricao: 'Área externa e paisagismo', responsavel: 'Eq. Paisagismo', dataInicio: '2025-07-01', dataFim: '2025-09-30', duracao: 91, percentualConcluido: 0, dependencias: ['a7'], status: 'pendente' },
+  { id: 'a1', obraId: '1', nome: 'Fundação', descricao: 'Execução das fundações', responsavel: 'Eq. Fundações', dataInicio: '2024-03-01', dataFim: '2024-05-15', duracao: 75, percentualConcluido: 100, dependencias: [], status: 'concluida', ordem: 0 },
+  { id: 'a2', obraId: '1', nome: 'Estrutura - Térreo ao 5º', descricao: 'Estrutura dos primeiros pavimentos', responsavel: 'Eq. Estrutura', dataInicio: '2024-05-16', dataFim: '2024-08-30', duracao: 106, percentualConcluido: 100, dependencias: ['a1'], status: 'concluida', ordem: 1 },
+  { id: 'a3', obraId: '1', nome: 'Estrutura - 6º ao 10º', descricao: 'Estrutura dos pavimentos intermediários', responsavel: 'Eq. Estrutura', dataInicio: '2024-09-01', dataFim: '2024-12-15', duracao: 105, percentualConcluido: 85, dependencias: ['a2'], status: 'em_andamento', ordem: 2 },
+  { id: 'a4', obraId: '1', nome: 'Instalações Elétricas', descricao: 'Infraestrutura elétrica geral', responsavel: 'Eq. Elétrica', dataInicio: '2024-08-01', dataFim: '2025-03-30', duracao: 241, percentualConcluido: 40, dependencias: ['a2'], status: 'em_andamento', ordem: 3 },
+  { id: 'a5', obraId: '1', nome: 'Instalações Hidráulicas', descricao: 'Infraestrutura hidráulica', responsavel: 'Eq. Hidráulica', dataInicio: '2024-08-15', dataFim: '2025-04-15', duracao: 243, percentualConcluido: 35, dependencias: ['a2'], status: 'atrasada', ordem: 4 },
+  { id: 'a6', obraId: '1', nome: 'Alvenaria', descricao: 'Execução de alvenaria', responsavel: 'Eq. Alvenaria', dataInicio: '2024-10-01', dataFim: '2025-05-30', duracao: 241, percentualConcluido: 20, dependencias: ['a3'], status: 'em_andamento', ordem: 5 },
+  { id: 'a7', obraId: '1', nome: 'Acabamentos', descricao: 'Acabamentos gerais', responsavel: 'Eq. Acabamento', dataInicio: '2025-03-01', dataFim: '2025-08-30', duracao: 183, percentualConcluido: 0, dependencias: ['a6'], status: 'pendente', ordem: 6 },
+  { id: 'a8', obraId: '1', nome: 'Paisagismo', descricao: 'Área externa e paisagismo', responsavel: 'Eq. Paisagismo', dataInicio: '2025-07-01', dataFim: '2025-09-30', duracao: 91, percentualConcluido: 0, dependencias: ['a7'], status: 'pendente', ordem: 7 },
 ];
 
 export const mockDespesas: Despesa[] = [

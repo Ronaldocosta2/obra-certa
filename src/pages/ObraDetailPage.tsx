@@ -40,7 +40,7 @@ export default function ObraDetailPage() {
     e.preventDefault();
     if (!novaAtividade.nome || !novaAtividade.dataInicio || !novaAtividade.dataFim) return;
 
-    const newTask = {
+    const newTask: typeof atividades[0] = {
       id: Math.random().toString(36).substr(2, 9),
       obraId: obra.id,
       nome: novaAtividade.nome,
@@ -52,6 +52,7 @@ export default function ObraDetailPage() {
       percentualConcluido: 0,
       dependencias: [],
       status: "pendente" as const,
+      ordem: atividades.length,
     };
 
     setAtividades([...atividades, newTask]);
