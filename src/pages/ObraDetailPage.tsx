@@ -1,19 +1,32 @@
 import { useParams, Link } from "react-router-dom";
-import { mockObras, mockAtividades, mockDespesas, formatCurrency, formatDate, statusConfig } from "@/data/mockData";
+import { formatCurrency, formatDate, statusConfig } from "@/data/mockData";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, MapPin, Calendar, User, DollarSign, CheckCircle2, Clock, AlertTriangle, Plus } from "lucide-react";
+import { 
+  ArrowLeft, MapPin, Calendar, User, DollarSign, 
+  CheckCircle2, Clock, AlertTriangle, Plus, Trash2, Edit2 
+} from "lucide-react";
 import { useState } from "react";
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-} from "recharts";
+import { useAppContext } from "@/contexts/AppContext";
+import { Button } from "@/components/ui/button";
 
 const tabs = ["Visão Geral", "Cronograma", "Financeiro", "Diário"] as const;
 
 export default function ObraDetailPage() {
   const { id } = useParams();
-  const obra = mockObras.find(o => o.id === id);
+  const { 
+    obras, atividades: allAtividades, despesas: allDespesas, diarios: allDiarios, 
+    addAtividade, addDespesa, deleteDespesa, updateDespesa, 
+    addDiario, deleteDiario, updateDiario 
+  } = useAppContext();
+
+  const obra = obras.find(o => o.id === id);
   const [activeTab, setActiveTab] = useState<typeof tabs[number]>("Visão Geral");
 
+  // Local state forms
+  const [novaAtividade, setNovaAtividade] = useState({nome: "", responsavel: "", dataInicio: "", dataFim: ""});
+  const [novaDespesa, setNovaDespesa] = useState({ tipo: "", fornecedor: "", categoria: "materiais", valor: "", data: "" });
+  const [novoDiario, setNovoDiario] = useState({ data: "", atividadesRealizadas: "", condicoesClimaticas: "" });
+  
   if (!obra) {
     return (
       <div className="text-center py-20">
@@ -23,25 +36,16 @@ export default function ObraDetailPage() {
     );
   }
 
-  const initialAtividades = mockAtividades.filter(a => a.obraId === obra.id);
-  const [atividades, setAtividades] = useState(initialAtividades);
-  const despesas = mockDespesas.filter(d => d.obraId === obra.id);
+  const atividades = allAtividades.filter(a => a.obraId === obra.id);
+  const despesas = allDespesas.filter(d => d.obraId === obra.id);
+  const diarios = allDiarios.filter(d => d.obraId === obra.id);
   const desvio = ((obra.custoRealizado / obra.valorTotal) * 100 - obra.progresso).toFixed(1);
-
-  // New states for form
-  const [novaAtividade, setNovaAtividade] = useState({
-    nome: "",
-    responsavel: "",
-    dataInicio: "",
-    dataFim: "",
-  });
 
   const handleAddAtividade = (e: React.FormEvent) => {
     e.preventDefault();
     if (!novaAtividade.nome || !novaAtividade.dataInicio || !novaAtividade.dataFim) return;
 
-    const newTask: typeof atividades[0] = {
-      id: Math.random().toString(36).substr(2, 9),
+    addAtividade({
       obraId: obra.id,
       nome: novaAtividade.nome,
       descricao: "",
@@ -51,11 +55,9 @@ export default function ObraDetailPage() {
       duracao: 0,
       percentualConcluido: 0,
       dependencias: [],
-      status: "pendente" as const,
+      status: "pendente",
       ordem: atividades.length,
-    };
-
-    setAtividades([...atividades, newTask]);
+    });
     setNovaAtividade({ nome: "", responsavel: "", dataInicio: "", dataFim: "" });
   };
 
@@ -293,6 +295,46 @@ export default function ObraDetailPage() {
             </div>
           </div>
 
+          <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
+            <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+              <Plus className="w-4 h-4 text-primary" /> Registrar Nova Despesa
+            </h3>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              addDespesa({
+                obraId: obra.id,
+                tipo: novaDespesa.tipo,
+                fornecedor: novaDespesa.fornecedor,
+                categoria: novaDespesa.categoria as any,
+                data: novaDespesa.data,
+                valor: Number(novaDespesa.valor)
+              });
+              setNovaDespesa({ tipo: "", fornecedor: "", categoria: "materiais", valor: "", data: "" });
+            }} className="grid md:grid-cols-6 gap-3 items-end">
+              <div className="space-y-1.5 md:col-span-2">
+                <label className="text-xs font-medium text-muted-foreground">Descrição / Item *</label>
+                <input required className="w-full flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm"
+                  value={novaDespesa.tipo} onChange={e => setNovaDespesa({...novaDespesa, tipo: e.target.value})} />
+              </div>
+              <div className="space-y-1.5 md:col-span-1">
+                <label className="text-xs font-medium text-muted-foreground">Fornecedor</label>
+                <input required className="w-full flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm"
+                  value={novaDespesa.fornecedor} onChange={e => setNovaDespesa({...novaDespesa, fornecedor: e.target.value})} />
+              </div>
+              <div className="space-y-1.5 md:col-span-1">
+                <label className="text-xs font-medium text-muted-foreground">Data *</label>
+                <input required type="date" className="w-full flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm"
+                  value={novaDespesa.data} onChange={e => setNovaDespesa({...novaDespesa, data: e.target.value})} />
+              </div>
+              <div className="space-y-1.5 md:col-span-1">
+                <label className="text-xs font-medium text-muted-foreground">Valor (R$) *</label>
+                <input required type="number" step="0.01" min="0" className="w-full flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm"
+                  value={novaDespesa.valor} onChange={e => setNovaDespesa({...novaDespesa, valor: e.target.value})} />
+              </div>
+              <Button type="submit" className="md:col-span-1 h-9">Adicionar</Button>
+            </form>
+          </div>
+
           {despesas.length > 0 && (
             <div className="stat-card">
               <h3 className="text-sm font-semibold mb-4">Despesas Registradas</h3>
@@ -300,25 +342,32 @@ export default function ObraDetailPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border text-left">
-                      <th className="pb-3 font-medium text-muted-foreground">Tipo</th>
+                      <th className="pb-3 font-medium text-muted-foreground">Tipo / Descrição</th>
                       <th className="pb-3 font-medium text-muted-foreground">Fornecedor</th>
-                      <th className="pb-3 font-medium text-muted-foreground">Categoria</th>
                       <th className="pb-3 font-medium text-muted-foreground">Data</th>
                       <th className="pb-3 font-medium text-muted-foreground text-right">Valor</th>
+                      <th className="pb-3 font-medium text-muted-foreground text-center">Ações</th>
                     </tr>
                   </thead>
                   <tbody>
                     {despesas.map(d => (
-                      <tr key={d.id} className="border-b border-border/50 last:border-0">
+                      <tr key={d.id} className="border-b border-border/50 last:border-0 hover:bg-accent/10">
                         <td className="py-3 font-medium">{d.tipo}</td>
                         <td className="py-3 text-muted-foreground">{d.fornecedor}</td>
-                        <td className="py-3">
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground capitalize">
-                            {d.categoria.replace('_', ' ')}
-                          </span>
-                        </td>
                         <td className="py-3 text-muted-foreground">{formatDate(d.data)}</td>
                         <td className="py-3 text-right font-semibold">{formatCurrency(d.valor)}</td>
+                        <td className="py-3 text-center space-x-2">
+                          <button onClick={() => {
+                            const nt = prompt("Novo nome/tipo da despesa:", d.tipo);
+                            const nv = prompt("Novo valor:", d.valor.toString());
+                            if (nt && nv) updateDespesa(d.id, { tipo: nt, valor: Number(nv) });
+                          }} className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground">
+                            <Edit2 className="w-3.5 h-3.5" />
+                          </button>
+                          <button onClick={() => deleteDespesa(d.id)} className="p-1 rounded hover:bg-destructive/10 text-destructive">
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -330,9 +379,74 @@ export default function ObraDetailPage() {
       )}
 
       {activeTab === "Diário" && (
-        <div className="text-center py-12 text-muted-foreground">
-          <p>Diário de obra — em breve.</p>
-          <p className="text-xs mt-1">Registre atividades diárias, condições climáticas e anexe fotos.</p>
+        <div className="space-y-6">
+          <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
+            <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+              <Plus className="w-4 h-4 text-primary" /> Registrar Nova Anotação
+            </h3>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              addDiario({
+                obraId: obra.id,
+                data: novoDiario.data,
+                atividadesRealizadas: novoDiario.atividadesRealizadas,
+                condicoesClimaticas: novoDiario.condicoesClimaticas,
+                responsavel: obra.responsavelTecnico,
+                equipesPresentes: [],
+                problemasOcorridos: '',
+                observacoes: ''
+              });
+              setNovoDiario({ data: "", atividadesRealizadas: "", condicoesClimaticas: "" });
+            }} className="grid md:grid-cols-4 gap-3 items-end">
+              <div className="space-y-1.5 md:col-span-1">
+                <label className="text-xs font-medium text-muted-foreground">Data *</label>
+                <input required type="date" className="w-full flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm"
+                  value={novoDiario.data} onChange={e => setNovoDiario({...novoDiario, data: e.target.value})} />
+              </div>
+              <div className="space-y-1.5 md:col-span-1">
+                <label className="text-xs font-medium text-muted-foreground">Condições Climáticas</label>
+                <input required className="w-full flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm"
+                  placeholder="Ex: Ensolarado, Chuvoso..."
+                  value={novoDiario.condicoesClimaticas} onChange={e => setNovoDiario({...novoDiario, condicoesClimaticas: e.target.value})} />
+              </div>
+              <div className="space-y-1.5 md:col-span-1">
+                <label className="text-xs font-medium text-muted-foreground">Atividades / Notas *</label>
+                <input required className="w-full flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm"
+                  placeholder="Resumo do dia"
+                  value={novoDiario.atividadesRealizadas} onChange={e => setNovoDiario({...novoDiario, atividadesRealizadas: e.target.value})} />
+              </div>
+              <Button type="submit" className="md:col-span-1 h-9">Salvar Registro</Button>
+            </form>
+          </div>
+
+          {diarios.length === 0 ? (
+            <p className="text-center text-muted-foreground py-8">Nenhum registro no diário de obras.</p>
+          ) : (
+            <div className="space-y-3">
+              {diarios.map(d => (
+                <div key={d.id} className="stat-card p-4 hover:border-border transition-colors group">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <span className="text-sm font-semibold">{formatDate(d.data)}</span>
+                      <span className="text-xs text-muted-foreground ml-2 px-2 py-0.5 bg-secondary rounded-full">{d.condicoesClimaticas}</span>
+                    </div>
+                    <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onClick={() => {
+                        const nt = prompt("Atualizar notas:", d.atividadesRealizadas);
+                        if (nt !== null) updateDiario(d.id, { atividadesRealizadas: nt });
+                      }} className="p-1 rounded hover:bg-muted text-muted-foreground">
+                        <Edit2 className="w-3.5 h-3.5" />
+                      </button>
+                      <button onClick={() => deleteDiario(d.id)} className="p-1 rounded hover:bg-destructive/10 text-destructive">
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                  <p className="text-sm mt-1 text-foreground/90 whitespace-pre-wrap">{d.atividadesRealizadas}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -1,4 +1,6 @@
-import { mockObras, formatCurrency, statusConfig } from "@/data/mockData";
+import { useMemo } from 'react';
+import { useAppContext } from "@/contexts/AppContext";
+import { formatCurrency, statusConfig } from "@/data/mockData";
 import {
   Building2,
   TrendingUp,
@@ -17,25 +19,12 @@ import {
   PieChart, Pie, Cell,
 } from "recharts";
 
-const obrasAtivas = mockObras.filter(o => o.status === 'em_andamento');
-const totalObras = mockObras.length;
-const totalTarefasAtrasadas = mockObras.reduce((s, o) => s + o.tarefasAtrasadas, 0);
-const totalCustoRealizado = mockObras.reduce((s, o) => s + o.custoRealizado, 0);
-const totalValor = mockObras.reduce((s, o) => s + o.valorTotal, 0);
-const totalPedreiros = mockObras.reduce((s, o) => s + o.pedreirosAtuantes, 0);
-const progressoMedio = Math.round(mockObras.filter(o => o.status !== 'finalizada').reduce((s, o) => s + o.progresso, 0) / Math.max(mockObras.filter(o => o.status !== 'finalizada').length, 1));
-
 const custoPorCategoria = [
   { name: 'Materiais', valor: 1530000 },
   { name: 'Mão de Obra', valor: 420000 },
   { name: 'Equipamentos', valor: 320000 },
   { name: 'Serviços', valor: 180000 },
 ];
-
-const progressoObras = mockObras.filter(o => o.status !== 'finalizada').map(o => ({
-  name: o.codigo,
-  progresso: o.progresso,
-}));
 
 const PIE_COLORS = [
   'hsl(24, 95%, 53%)',
@@ -44,45 +33,89 @@ const PIE_COLORS = [
   'hsl(210, 100%, 52%)',
 ];
 
-const stats = [
-  {
-    label: 'Total de Obras',
-    value: totalObras,
-    icon: Building2,
-    sub: `${obrasAtivas.length} ativas`,
-    trend: 'up' as const,
-  },
-  {
-    label: 'Pedreiros Atuantes',
-    value: totalPedreiros,
-    icon: HardHat,
-    sub: 'em todas as obras',
-    trend: 'up' as const,
-  },
-  {
-    label: 'Progresso Médio',
-    value: `${progressoMedio}%`,
-    icon: TrendingUp,
-    sub: 'obras em andamento',
-    trend: 'up' as const,
-  },
-  {
-    label: 'Tarefas Atrasadas',
-    value: totalTarefasAtrasadas,
-    icon: AlertTriangle,
-    sub: 'requerem atenção',
-    trend: 'down' as const,
-  },
-  {
-    label: 'Custo Realizado',
-    value: formatCurrency(totalCustoRealizado),
-    icon: DollarSign,
-    sub: `de ${formatCurrency(totalValor)} planejado`,
-    trend: 'up' as const,
-  },
-];
-
 export default function Dashboard() {
+  const { obras } = useAppContext();
+
+  const {
+    obrasAtivas,
+    totalObras,
+    totalTarefasAtrasadas,
+    totalCustoRealizado,
+    totalValor,
+    totalPedreiros,
+    progressoMedio,
+    progressoObras
+  } = useMemo(() => {
+    const ativas = obras.filter(o => o.status === 'em_andamento');
+    const nObras = obras.length;
+    const tarefasAtrs = obras.reduce((s, o) => s + o.tarefasAtrasadas, 0);
+    const custo = obras.reduce((s, o) => s + o.custoRealizado, 0);
+    const valor = obras.reduce((s, o) => s + o.valorTotal, 0);
+    const pedreiros = obras.reduce((s, o) => s + o.pedreirosAtuantes, 0);
+    
+    const obrasNaoFinalizadas = obras.filter(o => o.status !== 'finalizada');
+    const progMedio = obrasNaoFinalizadas.length > 0 
+      ? Math.round(obrasNaoFinalizadas.reduce((s, o) => s + o.progresso, 0) / obrasNaoFinalizadas.length) 
+      : 0;
+
+    const progObras = obrasNaoFinalizadas.map(o => ({
+      name: o.codigo,
+      progresso: o.progresso,
+    }));
+
+    return {
+      obrasAtivas: ativas,
+      totalObras: nObras,
+      totalTarefasAtrasadas: tarefasAtrs,
+      totalCustoRealizado: custo,
+      totalValor: valor,
+      totalPedreiros: pedreiros,
+      progressoMedio: progMedio,
+      progressoObras: progObras
+    };
+  }, [obras]);
+
+  const stats = [
+    {
+      label: 'Concluídas',
+      value: obras.filter(o => o.status === 'finalizada').length,
+      icon: Building2,
+      sub: 'Todas as obras finalizadas',
+      trend: 'up' as const,
+      link: '/obras?status=finalizada'
+    },
+    {
+      label: 'Em Andamento',
+      value: obrasAtivas.length,
+      icon: HardHat,
+      sub: 'Em execução',
+      trend: 'up' as const,
+      link: '/obras?status=em_andamento'
+    },
+    {
+      label: 'Tarefas Atrasadas',
+      value: totalTarefasAtrasadas,
+      icon: AlertTriangle,
+      sub: 'Requerem atenção',
+      trend: 'down' as const,
+      link: '/obras?status=atrasadas_mock' // Ajustaremos depois se houver filtro específico
+    },
+    {
+      label: 'Progresso Médio',
+      value: `${progressoMedio}%`,
+      icon: TrendingUp,
+      sub: 'Nas obras ativas',
+      trend: 'up' as const,
+    },
+    {
+      label: 'Custo Realizado',
+      value: formatCurrency(totalCustoRealizado),
+      icon: DollarSign,
+      sub: `de ${formatCurrency(totalValor)}`,
+      trend: 'up' as const,
+    },
+  ];
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -93,27 +126,39 @@ export default function Dashboard() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
-        {stats.map((s) => (
-          <div key={s.label} className="stat-card flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground font-medium">{s.label}</span>
-              <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-                <s.icon className="w-4.5 h-4.5 text-primary" />
+        {stats.map((s) => {
+          const CardContent = (
+            <div className={`stat-card flex flex-col gap-3 h-full ${s.link ? 'hover:border-primary/50 transition-colors' : ''}`}>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground font-medium">{s.label}</span>
+                <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <s.icon className="w-4.5 h-4.5 text-primary" />
+                </div>
+              </div>
+              <div>
+                <p className="text-2xl font-bold font-heading">{s.value}</p>
+                <div className="flex items-center gap-1 mt-1">
+                  {s.trend === 'up' ? (
+                    <ArrowUpRight className="w-3.5 h-3.5 text-success" />
+                  ) : (
+                    <ArrowDownRight className="w-3.5 h-3.5 text-destructive" />
+                  )}
+                  <span className="text-xs text-muted-foreground">{s.sub}</span>
+                </div>
               </div>
             </div>
-            <div>
-              <p className="text-2xl font-bold font-heading">{s.value}</p>
-              <div className="flex items-center gap-1 mt-1">
-                {s.trend === 'up' ? (
-                  <ArrowUpRight className="w-3.5 h-3.5 text-success" />
-                ) : (
-                  <ArrowDownRight className="w-3.5 h-3.5 text-destructive" />
-                )}
-                <span className="text-xs text-muted-foreground">{s.sub}</span>
-              </div>
+          );
+
+          return s.link ? (
+            <Link key={s.label} to={s.link} className="block">
+              {CardContent}
+            </Link>
+          ) : (
+            <div key={s.label}>
+              {CardContent}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Charts row */}
@@ -184,7 +229,9 @@ export default function Dashboard() {
           </Link>
         </div>
         <div className="grid gap-3">
-          {mockObras.slice(0, 4).map((obra) => (
+          {obras.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-4 text-center">Nenhuma obra cadastrada ainda.</p>
+          ) : obras.slice(0, 4).map((obra) => (
             <Link
               key={obra.id}
               to={`/obras/${obra.id}`}

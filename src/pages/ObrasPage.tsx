@@ -1,32 +1,165 @@
-import { mockObras, formatCurrency, statusConfig, type ObraStatus } from "@/data/mockData";
+import { useAppContext } from "@/contexts/AppContext";
+import { formatCurrency, statusConfig, type ObraStatus } from "@/data/mockData";
 import { Progress } from "@/components/ui/progress";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Plus, Search, Filter } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function ObrasPage() {
+  const { obras, addObra } = useAppContext();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const statusParam = searchParams.get("status") as ObraStatus | "todos" | null;
+  
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<ObraStatus | "todos">("todos");
+  const [statusFilter, setStatusFilter] = useState<ObraStatus | "todos">(statusParam || "todos");
+  const [isNewObraOpen, setIsNewObraOpen] = useState(false);
 
-  const filtered = mockObras.filter((o) => {
-    const matchSearch = o.nome.toLowerCase().includes(search.toLowerCase()) ||
-      o.codigo.toLowerCase().includes(search.toLowerCase()) ||
-      o.cliente.toLowerCase().includes(search.toLowerCase());
-    const matchStatus = statusFilter === "todos" || o.status === statusFilter;
-    return matchSearch && matchStatus;
+  // New Obra Form State
+  const [newObra, setNewObra] = useState({
+    nome: '',
+    codigo: '',
+    cliente: '',
+    endereco: '',
+    dataInicio: '',
+    dataPrevistaConclusao: '',
+    valorTotal: 0,
+    responsavelTecnico: '',
+    status: 'planejamento' as ObraStatus,
+    areaConstruida: 0,
+    tipoObra: 'residencial' as 'residencial' | 'comercial' | 'industrial',
+    descricao: ''
   });
+
+  // Update URL params when status changes
+  const handleStatusChange = (s: ObraStatus | "todos") => {
+    setStatusFilter(s);
+    if (s === "todos") {
+      searchParams.delete("status");
+    } else {
+      searchParams.set("status", s);
+    }
+    setSearchParams(searchParams, { replace: true });
+  };
+
+  const filtered = useMemo(() => {
+    const list = obras.filter((o) => {
+      const matchSearch = o.nome.toLowerCase().includes(search.toLowerCase()) ||
+        o.codigo.toLowerCase().includes(search.toLowerCase()) ||
+        o.cliente.toLowerCase().includes(search.toLowerCase());
+      const matchStatus = statusFilter === "todos" || o.status === statusFilter;
+      return matchSearch && matchStatus;
+    });
+
+    // Ordenação: obras que concluem antes (data menor) ficam no topo.
+    return list.sort((a, b) => new Date(a.dataPrevistaConclusao).getTime() - new Date(b.dataPrevistaConclusao).getTime());
+  }, [obras, search, statusFilter]);
+
+  const handleCreateObra = (e: React.FormEvent) => {
+    e.preventDefault();
+    addObra(newObra);
+    setIsNewObraOpen(false);
+    setNewObra({
+      nome: '', codigo: '', cliente: '', endereco: '', dataInicio: '', dataPrevistaConclusao: '',
+      valorTotal: 0, responsavelTecnico: '', status: 'planejamento', areaConstruida: 0,
+      tipoObra: 'residencial', descricao: ''
+    });
+  };
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl lg:text-3xl font-heading">Obras</h1>
-          <p className="text-muted-foreground mt-1">{mockObras.length} obras cadastradas</p>
+          <p className="text-muted-foreground mt-1">{obras.length} obras cadastradas</p>
         </div>
-        <button className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2.5 rounded-lg font-medium text-sm hover:opacity-90 transition-opacity">
-          <Plus className="w-4 h-4" />
-          Nova Obra
-        </button>
+        <Dialog open={isNewObraOpen} onOpenChange={setIsNewObraOpen}>
+          <DialogTrigger asChild>
+            <Button className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2.5 rounded-lg font-medium text-sm hover:opacity-90 transition-opacity">
+              <Plus className="w-4 h-4" />
+              Nova Obra
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[700px] h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Cadastrar Nova Obra</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleCreateObra} className="grid sm:grid-cols-2 gap-4 py-4">
+              <div className="space-y-2">
+                <Label>Código da Obra *</Label>
+                <Input required value={newObra.codigo} onChange={e => setNewObra({...newObra, codigo: e.target.value})} placeholder="Ex: OBR-2024-001" />
+              </div>
+              <div className="space-y-2">
+                <Label>Nome da Obra *</Label>
+                <Input required value={newObra.nome} onChange={e => setNewObra({...newObra, nome: e.target.value})} placeholder="Ex: Edifício Aurora" />
+              </div>
+              <div className="space-y-2">
+                <Label>Cliente *</Label>
+                <Input required value={newObra.cliente} onChange={e => setNewObra({...newObra, cliente: e.target.value})} placeholder="Nome do Cliente" />
+              </div>
+              <div className="space-y-2">
+                <Label>Responsável Técnico *</Label>
+                <Input required value={newObra.responsavelTecnico} onChange={e => setNewObra({...newObra, responsavelTecnico: e.target.value})} placeholder="Eng. Responsável" />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label>Endereço *</Label>
+                <Input required value={newObra.endereco} onChange={e => setNewObra({...newObra, endereco: e.target.value})} placeholder="Endereço completo" />
+              </div>
+              <div className="space-y-2">
+                <Label>Data de Início *</Label>
+                <Input required type="date" value={newObra.dataInicio} onChange={e => setNewObra({...newObra, dataInicio: e.target.value})} />
+              </div>
+              <div className="space-y-2">
+                <Label>Data Prevista de Conclusão *</Label>
+                <Input required type="date" value={newObra.dataPrevistaConclusao} onChange={e => setNewObra({...newObra, dataPrevistaConclusao: e.target.value})} />
+              </div>
+              <div className="space-y-2">
+                <Label>Valor Total Planejado (R$) *</Label>
+                <Input required type="number" min="0" step="0.01" value={newObra.valorTotal || ''} onChange={e => setNewObra({...newObra, valorTotal: Number(e.target.value)})} />
+              </div>
+              <div className="space-y-2">
+                <Label>Área Construída (m²) *</Label>
+                <Input required type="number" min="0" step="0.01" value={newObra.areaConstruida || ''} onChange={e => setNewObra({...newObra, areaConstruida: Number(e.target.value)})} />
+              </div>
+              <div className="space-y-2">
+                <Label>Tipo de Obra</Label>
+                <Select value={newObra.tipoObra} onValueChange={v => setNewObra({...newObra, tipoObra: v as any})}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="residencial">Residencial</SelectItem>
+                    <SelectItem value="comercial">Comercial</SelectItem>
+                    <SelectItem value="industrial">Industrial</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Status</Label>
+                <Select value={newObra.status} onValueChange={v => setNewObra({...newObra, status: v as any})}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="planejamento">Planejamento</SelectItem>
+                    <SelectItem value="em_andamento">Em Andamento</SelectItem>
+                    <SelectItem value="pausada">Pausada</SelectItem>
+                    <SelectItem value="finalizada">Finalizada</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label>Descrição / Escopo</Label>
+                <Textarea value={newObra.descricao} onChange={e => setNewObra({...newObra, descricao: e.target.value})} placeholder="Detalhes do projeto..." className="resize-none" />
+              </div>
+              <div className="sm:col-span-2 flex justify-end gap-2 mt-4">
+                <Button type="button" variant="outline" onClick={() => setIsNewObraOpen(false)}>Cancelar</Button>
+                <Button type="submit">Avançar e Criar Obra</Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Filters */}
@@ -45,7 +178,7 @@ export default function ObrasPage() {
           {(["todos", "em_andamento", "planejamento", "pausada", "finalizada"] as const).map((s) => (
             <button
               key={s}
-              onClick={() => setStatusFilter(s)}
+              onClick={() => handleStatusChange(s)}
               className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
                 statusFilter === s
                   ? "bg-primary text-primary-foreground"

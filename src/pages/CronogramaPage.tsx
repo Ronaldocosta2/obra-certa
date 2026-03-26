@@ -1,5 +1,6 @@
-import { useState, useMemo, useCallback } from "react";
-import { mockObras, mockAtividades, formatDate, type Atividade, type Obra } from "@/data/mockData";
+import { useState, useMemo, useCallback, useEffect } from "react";
+import { formatCurrency, formatDate, type Atividade, type Obra } from "@/data/mockData";
+import { useAppContext } from "@/contexts/AppContext";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -58,10 +59,20 @@ function autoDetectStatus(task: Atividade): TaskStatus {
 }
 
 const CronogramaPage = () => {
-  const [selectedObraId, setSelectedObraId] = useState<string>(mockObras[0]?.id || "");
-  const [atividades, setAtividades] = useState<Atividade[]>(
-    mockAtividades.map((a, i) => ({ ...a, ordem: a.ordem ?? i }))
-  );
+  const { obras, atividades, addAtividade, updateAtividade, deleteAtividade } = useAppContext();
+  
+  const sortedObras = useMemo(() => {
+    return [...obras].sort((a, b) => new Date(a.dataPrevistaConclusao).getTime() - new Date(b.dataPrevistaConclusao).getTime());
+  }, [obras]);
+
+  const [selectedObraId, setSelectedObraId] = useState<string>("");
+
+  useEffect(() => {
+    if (!selectedObraId && sortedObras.length > 0) {
+      setSelectedObraId(sortedObras[0].id);
+    }
+  }, [sortedObras, selectedObraId]);
+
   const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set());
   const [editingCell, setEditingCell] = useState<{ id: string; field: string } | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>("all");
@@ -70,7 +81,7 @@ const CronogramaPage = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [addingSubtaskFor, setAddingSubtaskFor] = useState<string | null>(null);
 
-  const obra = mockObras.find((o) => o.id === selectedObraId);
+  const obra = sortedObras.find((o) => o.id === selectedObraId);
 
   const obraAtividades = useMemo(() => {
     let tasks = atividades
@@ -148,17 +159,14 @@ const CronogramaPage = () => {
   }, [ganttRange]);
 
   const updateTask = (id: string, updates: Partial<Atividade>) => {
-    setAtividades((prev) =>
-      prev.map((t) => {
-        if (t.id !== id) return t;
-        const updated = { ...t, ...updates };
-        if (updates.dataInicio || updates.dataFim) {
-          updated.duracao = diffDays(updated.dataInicio, updated.dataFim);
-        }
-        updated.status = autoDetectStatus(updated);
-        return updated;
-      })
-    );
+    const t = atividades.find(a => a.id === id);
+    if (!t) return;
+    const updated = { ...t, ...updates };
+    if (updates.dataInicio || updates.dataFim) {
+      updated.duracao = diffDays(updated.dataInicio, updated.dataFim);
+    }
+    updated.status = autoDetectStatus(updated);
+    updateAtividade(id, updated);
     setEditingCell(null);
   };
 
@@ -177,7 +185,7 @@ const CronogramaPage = () => {
       status: "pendente",
       ordem: atividades.length,
     };
-    setAtividades((prev) => [...prev, newTask]);
+    addAtividade(newTask as unknown as Omit<Atividade, 'id'>);
     setEditingCell({ id: newTask.id, field: "nome" });
     toast.success("Atividade criada");
   };
@@ -200,36 +208,32 @@ const CronogramaPage = () => {
       parentId,
       ordem: atividades.length,
     };
-    setAtividades((prev) => [...prev, newTask]);
+    addAtividade(newTask as unknown as Omit<Atividade, 'id'>);
     setExpandedTasks((prev) => new Set(prev).add(parentId));
     setEditingCell({ id: newTask.id, field: "nome" });
     setAddingSubtaskFor(null);
     toast.success("Subtarefa criada");
   };
 
-  const deleteTask = (id: string) => {
-    setAtividades((prev) => prev.filter((t) => t.id !== id && t.parentId !== id));
+  const deleteTaskObj = (id: string) => {
+    deleteAtividade(id);
     toast.success("Atividade removida");
   };
 
   const addDependency = (taskId: string, depId: string) => {
     if (taskId === depId) return;
-    setAtividades((prev) =>
-      prev.map((t) =>
-        t.id === taskId && !t.dependencias.includes(depId)
-          ? { ...t, dependencias: [...t.dependencias, depId] }
-          : t
-      )
-    );
-    toast.success("Dependência adicionada");
+    const t = atividades.find(a => a.id === taskId);
+    if (t && !t.dependencias.includes(depId)) {
+      updateAtividade(taskId, { dependencias: [...t.dependencias, depId] });
+      toast.success("Dependência adicionada");
+    }
   };
 
   const removeDependency = (taskId: string, depId: string) => {
-    setAtividades((prev) =>
-      prev.map((t) =>
-        t.id === taskId ? { ...t, dependencias: t.dependencias.filter((d) => d !== depId) } : t
-      )
-    );
+    const t = atividades.find(a => a.id === taskId);
+    if (t) {
+      updateAtividade(taskId, { dependencias: t.dependencias.filter((d) => d !== depId) });
+    }
   };
 
   const toggleExpand = (id: string) => {
@@ -332,7 +336,7 @@ const CronogramaPage = () => {
                   <Plus className="w-3 h-3" />
                 </button>
                 <button
-                  onClick={() => deleteTask(task.id)}
+                  onClick={() => deleteTaskObj(task.id)}
                   className="p-1 rounded hover:bg-destructive/20 text-destructive"
                   title="Remover"
                 >
@@ -452,7 +456,7 @@ const CronogramaPage = () => {
               <SelectValue placeholder="Selecione uma obra" />
             </SelectTrigger>
             <SelectContent>
-              {mockObras.map((o) => (
+              {sortedObras.map((o) => (
                 <SelectItem key={o.id} value={o.id}>
                   {o.codigo} — {o.nome}
                 </SelectItem>

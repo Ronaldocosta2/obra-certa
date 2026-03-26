@@ -13,27 +13,31 @@ import FinanceiroPage from "@/pages/FinanceiroPage";
 import DocumentosPage from "@/pages/DocumentosPage";
 import NotFound from "./pages/NotFound";
 
+import { AppProvider } from "./contexts/AppContext";
+
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AppLayout>
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/obras" element={<ObrasPage />} />
-            <Route path="/obras/:id" element={<ObraDetailPage />} />
-            <Route path="/cronograma" element={<CronogramaPage />} />
-            <Route path="/diario" element={<DiarioPage />} />
-            <Route path="/financeiro" element={<FinanceiroPage />} />
-            <Route path="/documentos" element={<DocumentosPage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AppLayout>
-      </BrowserRouter>
+      <AppProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AppLayout>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/obras" element={<ObrasPage />} />
+              <Route path="/obras/:id" element={<ObraDetailPage />} />
+              <Route path="/cronograma" element={<CronogramaPage />} />
+              <Route path="/diario" element={<DiarioPage />} />
+              <Route path="/financeiro" element={<FinanceiroPage />} />
+              <Route path="/documentos" element={<DocumentosPage />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AppLayout>
+        </BrowserRouter>
+      </AppProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
