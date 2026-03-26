@@ -98,12 +98,23 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="px-5 py-4 border-t border-sidebar-border">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-sidebar-accent flex items-center justify-center text-xs font-semibold text-sidebar-accent-foreground">
-              CS
+              {initials}
             </div>
-            <div>
-              <p className="text-sm font-medium text-sidebar-accent-foreground">Carlos Silva</p>
-              <p className="text-xs text-sidebar-muted">Engenheiro</p>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-sidebar-accent-foreground truncate">
+                {profile?.full_name || "Usuário"}
+              </p>
+              <p className="text-xs text-sidebar-muted">
+                {cargoLabels[profile?.cargo || "engenheiro"]}
+              </p>
             </div>
+            <button
+              onClick={signOut}
+              className="text-sidebar-muted hover:text-sidebar-foreground transition-colors"
+              title="Sair"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </aside>
