@@ -62,7 +62,12 @@ export default function ObrasPage() {
 
   const handleCreateObra = (e: React.FormEvent) => {
     e.preventDefault();
-    addObra(newObra);
+    const obraData = {
+      ...newObra,
+      valorTotal: newObra.valorTotal || 0,
+      areaConstruida: newObra.areaConstruida || 0,
+    };
+    addObra(obraData);
     setIsNewObraOpen(false);
     setNewObra({
       nome: '', codigo: '', cliente: '', endereco: '', dataInicio: '', dataPrevistaConclusao: '',
@@ -91,40 +96,40 @@ export default function ObrasPage() {
             </DialogHeader>
             <form onSubmit={handleCreateObra} className="grid sm:grid-cols-2 gap-4 py-4">
               <div className="space-y-2">
-                <Label>Código da Obra *</Label>
-                <Input required value={newObra.codigo} onChange={e => setNewObra({...newObra, codigo: e.target.value})} placeholder="Ex: OBR-2024-001" />
+                <Label>Código da Obra</Label>
+                <Input value={newObra.codigo} onChange={e => setNewObra({...newObra, codigo: e.target.value})} placeholder="Ex: OBR-2024-001" />
               </div>
               <div className="space-y-2">
-                <Label>Nome da Obra *</Label>
-                <Input required value={newObra.nome} onChange={e => setNewObra({...newObra, nome: e.target.value})} placeholder="Ex: Edifício Aurora" />
+                <Label>Nome da Obra</Label>
+                <Input value={newObra.nome} onChange={e => setNewObra({...newObra, nome: e.target.value})} placeholder="Ex: Edifício Aurora" />
               </div>
               <div className="space-y-2">
-                <Label>Cliente *</Label>
-                <Input required value={newObra.cliente} onChange={e => setNewObra({...newObra, cliente: e.target.value})} placeholder="Nome do Cliente" />
+                <Label>Cliente</Label>
+                <Input value={newObra.cliente} onChange={e => setNewObra({...newObra, cliente: e.target.value})} placeholder="Nome do Cliente" />
               </div>
               <div className="space-y-2">
-                <Label>Responsável Técnico *</Label>
-                <Input required value={newObra.responsavelTecnico} onChange={e => setNewObra({...newObra, responsavelTecnico: e.target.value})} placeholder="Eng. Responsável" />
+                <Label>Responsável Técnico</Label>
+                <Input value={newObra.responsavelTecnico} onChange={e => setNewObra({...newObra, responsavelTecnico: e.target.value})} placeholder="Eng. Responsável" />
               </div>
               <div className="space-y-2 sm:col-span-2">
-                <Label>Endereço *</Label>
-                <Input required value={newObra.endereco} onChange={e => setNewObra({...newObra, endereco: e.target.value})} placeholder="Endereço completo" />
+                <Label>Endereço</Label>
+                <Input value={newObra.endereco} onChange={e => setNewObra({...newObra, endereco: e.target.value})} placeholder="Endereço completo" />
               </div>
               <div className="space-y-2">
-                <Label>Data de Início *</Label>
-                <Input required type="date" value={newObra.dataInicio} onChange={e => setNewObra({...newObra, dataInicio: e.target.value})} />
+                <Label>Data de Início</Label>
+                <Input type="date" value={newObra.dataInicio} onChange={e => setNewObra({...newObra, dataInicio: e.target.value})} />
               </div>
               <div className="space-y-2">
-                <Label>Data Prevista de Conclusão *</Label>
-                <Input required type="date" value={newObra.dataPrevistaConclusao} onChange={e => setNewObra({...newObra, dataPrevistaConclusao: e.target.value})} />
+                <Label>Data Prevista de Conclusão</Label>
+                <Input type="date" value={newObra.dataPrevistaConclusao} onChange={e => setNewObra({...newObra, dataPrevistaConclusao: e.target.value})} />
               </div>
               <div className="space-y-2">
-                <Label>Valor Total Planejado (R$) *</Label>
-                <Input required type="number" min="0" step="0.01" value={newObra.valorTotal || ''} onChange={e => setNewObra({...newObra, valorTotal: Number(e.target.value)})} />
+                <Label>Valor Total Planejado (R$)</Label>
+                <Input type="number" min="0" step="0.01" value={newObra.valorTotal || ''} onChange={e => setNewObra({...newObra, valorTotal: Number(e.target.value)})} />
               </div>
               <div className="space-y-2">
-                <Label>Área Construída (m²) *</Label>
-                <Input required type="number" min="0" step="0.01" value={newObra.areaConstruida || ''} onChange={e => setNewObra({...newObra, areaConstruida: Number(e.target.value)})} />
+                <Label>Área Construída (m²)</Label>
+                <Input type="number" min="0" step="0.01" value={newObra.areaConstruida || ''} onChange={e => setNewObra({...newObra, areaConstruida: Number(e.target.value)})} />
               </div>
               <div className="space-y-2">
                 <Label>Tipo de Obra</Label>
