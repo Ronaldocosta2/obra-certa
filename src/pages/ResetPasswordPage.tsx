@@ -57,9 +57,16 @@ export default function ResetPasswordPage() {
       });
       navigate("/");
     } catch (error: any) {
+      const rawMessage = error?.message ?? "";
+      const description = rawMessage.includes("different from the old password")
+        ? "A nova senha precisa ser diferente da senha atual."
+        : rawMessage.includes("Auth session missing")
+        ? "Sua sessão de recuperação expirou. Solicite um novo link de redefinição."
+        : rawMessage || "Não foi possível redefinir a senha.";
+
       toast({
         title: "Erro",
-        description: error.message,
+        description,
         variant: "destructive",
       });
     } finally {
