@@ -4,11 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { HardHat, Eye, EyeOff, Loader2 } from "lucide-react";
+import { HardHat, Eye, EyeOff, Loader2, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+type View = "login" | "signup" | "forgot";
+
 export default function LoginPage() {
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [view, setView] = useState<View>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -21,7 +23,19 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      if (isSignUp) {
+      if (view === "forgot") {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) throw error;
+        toast({
+          title: "E-mail enviado!",
+          description: "Verifique sua caixa de entrada para redefinir a senha.",
+        });
+        return;
+      }
+
+      if (view === "signup") {
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -33,8 +47,9 @@ export default function LoginPage() {
         if (error) throw error;
         toast({
           title: "Conta criada!",
-          description: "Verifique seu e-mail para confirmar o cadastro.",
+          description: "Você já pode fazer login.",
         });
+        setView("login");
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
@@ -68,14 +83,18 @@ export default function LoginPage() {
           <div>
             <CardTitle className="text-2xl font-heading">ObraControl</CardTitle>
             <CardDescription className="mt-1">
-              {isSignUp ? "Crie sua conta para começar" : "Entre na sua conta"}
+              {view === "signup"
+                ? "Crie sua conta para começar"
+                : view === "forgot"
+                ? "Informe seu e-mail para recuperar a senha"
+                : "Entre na sua conta"}
             </CardDescription>
           </div>
         </CardHeader>
 
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
-            {isSignUp && (
+            {view === "signup" && (
               <div className="space-y-2">
                 <Label htmlFor="fullName">Nome completo</Label>
                 <Input
@@ -100,41 +119,68 @@ export default function LoginPage() {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password">Senha</Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Mínimo 6 caracteres"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={6}
-                />
-                <button
-                  type="button"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
+            {view !== "forgot" && (
+              <div className="space-y-2">
+                <Label htmlFor="password">Senha</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Mínimo 6 caracteres"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={6}
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
           </CardContent>
 
           <CardFooter className="flex-col gap-3">
             <Button type="submit" className="w-full" disabled={loading}>
               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-              {isSignUp ? "Criar conta" : "Entrar"}
+              {view === "signup"
+                ? "Criar conta"
+                : view === "forgot"
+                ? "Enviar link de recuperação"
+                : "Entrar"}
             </Button>
+
+            {view === "login" && (
+              <button
+                type="button"
+                className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                onClick={() => setView("forgot")}
+              >
+                Esqueceu a senha?
+              </button>
+            )}
+
+            {view === "forgot" && (
+              <button
+                type="button"
+                className="text-sm text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1"
+                onClick={() => setView("login")}
+              >
+                <ArrowLeft className="w-3 h-3" />
+                Voltar ao login
+              </button>
+            )}
 
             <button
               type="button"
               className="text-sm text-muted-foreground hover:text-primary transition-colors"
-              onClick={() => setIsSignUp(!isSignUp)}
+              onClick={() => setView(view === "signup" ? "login" : "signup")}
             >
-              {isSignUp
+              {view === "signup"
                 ? "Já tem uma conta? Faça login"
                 : "Não tem conta? Cadastre-se"}
             </button>
