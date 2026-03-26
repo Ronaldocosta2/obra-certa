@@ -26,6 +26,18 @@ const navItems = [
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const { profile, signOut } = useAuth();
+
+  const cargoLabels: Record<string, string> = {
+    admin: "Administrador",
+    engenheiro: "Engenheiro",
+    supervisor: "Supervisor",
+    financeiro: "Financeiro",
+  };
+
+  const initials = profile?.full_name
+    ? profile.full_name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()
+    : "??";
 
   return (
     <div className="min-h-screen flex">
