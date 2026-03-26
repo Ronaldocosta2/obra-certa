@@ -43,11 +43,14 @@ export default function LoginPage() {
         if (error) throw error;
       }
     } catch (error: any) {
+      const msg = error.message === "Invalid login credentials"
+        ? "E-mail ou senha incorretos."
+        : error.message === "Email not confirmed"
+        ? "E-mail ainda não confirmado. Verifique sua caixa de entrada."
+        : error.message;
       toast({
         title: "Erro",
-        description: error.message === "Invalid login credentials"
-          ? "E-mail ou senha incorretos."
-          : error.message,
+        description: msg,
         variant: "destructive",
       });
     } finally {
