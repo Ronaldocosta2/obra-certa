@@ -14,6 +14,7 @@ import DiarioPage from "@/pages/DiarioPage";
 import FinanceiroPage from "@/pages/FinanceiroPage";
 import DocumentosPage from "@/pages/DocumentosPage";
 import LoginPage from "@/pages/LoginPage";
+import ResetPasswordPage from "@/pages/ResetPasswordPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
