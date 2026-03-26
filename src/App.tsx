@@ -3,6 +3,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import AppLayout from "@/components/AppLayout";
 import Dashboard from "@/pages/Dashboard";
 import ObrasPage from "@/pages/ObrasPage";
@@ -11,6 +13,7 @@ import CronogramaPage from "@/pages/CronogramaPage";
 import DiarioPage from "@/pages/DiarioPage";
 import FinanceiroPage from "@/pages/FinanceiroPage";
 import DocumentosPage from "@/pages/DocumentosPage";
+import LoginPage from "@/pages/LoginPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,18 +24,30 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <AppLayout>
+        <AuthProvider>
           <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/obras" element={<ObrasPage />} />
-            <Route path="/obras/:id" element={<ObraDetailPage />} />
-            <Route path="/cronograma" element={<CronogramaPage />} />
-            <Route path="/diario" element={<DiarioPage />} />
-            <Route path="/financeiro" element={<FinanceiroPage />} />
-            <Route path="/documentos" element={<DocumentosPage />} />
-            <Route path="*" element={<NotFound />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route
+              path="/*"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <Routes>
+                      <Route path="/" element={<Dashboard />} />
+                      <Route path="/obras" element={<ObrasPage />} />
+                      <Route path="/obras/:id" element={<ObraDetailPage />} />
+                      <Route path="/cronograma" element={<CronogramaPage />} />
+                      <Route path="/diario" element={<DiarioPage />} />
+                      <Route path="/financeiro" element={<FinanceiroPage />} />
+                      <Route path="/documentos" element={<DocumentosPage />} />
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
           </Routes>
-        </AppLayout>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
