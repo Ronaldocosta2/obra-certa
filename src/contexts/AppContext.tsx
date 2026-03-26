@@ -51,19 +51,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [obras, setObras] = useState<Obra[]>(() => {
     const saved = localStorage.getItem('obras');
     if (saved) return JSON.parse(saved);
-    return isDemoMode ? mockObras : [];
+    return [];
   });
 
   const [atividades, setAtividades] = useState<Atividade[]>(() => {
     const saved = localStorage.getItem('atividades');
     if (saved) return JSON.parse(saved);
-    return isDemoMode ? mockAtividades : [];
+    return [];
   });
 
   const [despesas, setDespesas] = useState<Despesa[]>(() => {
     const saved = localStorage.getItem('despesas');
     if (saved) return JSON.parse(saved);
-    return isDemoMode ? mockDespesas : [];
+    return [];
   });
 
   const [diarios, setDiarios] = useState<DiarioObra[]>(() => {
