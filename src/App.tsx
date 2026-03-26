@@ -14,6 +14,7 @@ import DiarioPage from "@/pages/DiarioPage";
 import FinanceiroPage from "@/pages/FinanceiroPage";
 import DocumentosPage from "@/pages/DocumentosPage";
 import LoginPage from "@/pages/LoginPage";
+import ResetPasswordPage from "@/pages/ResetPasswordPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App = () => (
         <AuthProvider>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route
               path="/*"
               element={
