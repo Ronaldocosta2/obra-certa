@@ -124,7 +124,7 @@ export default function ObrasPage() {
                 <Input type="date" value={newObra.dataPrevistaConclusao} onChange={e => setNewObra({...newObra, dataPrevistaConclusao: e.target.value})} />
               </div>
               <div className="space-y-2">
-                <Label>Valor Total Planejado (R$)</Label>
+                <Label>Valor Planejado (R$)</Label>
                 <Input type="number" min="0" step="0.01" value={newObra.valorTotal || ''} onChange={e => setNewObra({...newObra, valorTotal: Number(e.target.value)})} />
               </div>
               <div className="space-y-2">
