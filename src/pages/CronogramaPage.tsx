@@ -81,9 +81,27 @@ const CronogramaPage = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [addingSubtaskFor, setAddingSubtaskFor] = useState<string | null>(null);
 
+  if (sortedObras.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl lg:text-3xl font-heading">Cronograma</h1>
+          <p className="text-muted-foreground text-sm mt-0.5">
+            Planeje e acompanhe as atividades do projeto
+          </p>
+        </div>
+        <div className="stat-card text-center py-16">
+          <p className="text-muted-foreground">Nenhuma obra cadastrada.</p>
+          <p className="text-xs text-muted-foreground mt-1">Cadastre uma obra primeiro para criar o cronograma.</p>
+        </div>
+      </div>
+    );
+  }
+
   const obra = sortedObras.find((o) => o.id === selectedObraId);
 
   const obraAtividades = useMemo(() => {
+    if (!selectedObraId) return [];
     let tasks = atividades
       .filter((a) => a.obraId === selectedObraId)
       .sort((a, b) => a.ordem - b.ordem);

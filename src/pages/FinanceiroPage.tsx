@@ -9,15 +9,17 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, DollarSign, TrendingUp, TrendingDown, Wallet, PieChart, ArrowUpDown } from "lucide-react";
+import { Plus, DollarSign, TrendingUp, TrendingDown, Wallet, PieChart, ArrowUpDown, Pencil } from "lucide-react";
 import { formatCurrency, formatDate } from "@/data/mockData";
 
 type Categoria = 'mao_de_obra' | 'materiais' | 'equipamentos' | 'servicos_terceirizados';
 
 export default function FinanceiroPage() {
-  const { despesas, addDespesa, obras, deleteDespesa } = useAppContext();
+  const { despesas, addDespesa, updateDespesa, obras, deleteDespesa } = useAppContext();
   const [selectedObra, setSelectedObra] = useState<string>("");
   const [isNewDespesaOpen, setIsNewDespesaOpen] = useState(false);
+  const [isEditDespesaOpen, setIsEditDespesaOpen] = useState(false);
+  const [despesaEmEdicao, setDespesaEmEdicao] = useState<any>(null);
   const [categoriaFilter, setCategoriaFilter] = useState<Categoria | "todos">("todos");
   const [sortField, setSortField] = useState<"data" | "valor">("data");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
@@ -115,6 +117,27 @@ export default function FinanceiroPage() {
       servicos_terceirizados: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100'
     };
     return colors[cat];
+  };
+
+  const openEditDialog = (despesa: any) => {
+    setDespesaEmEdicao(despesa);
+    setIsEditDespesaOpen(true);
+  };
+
+  const handleUpdateDespesa = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (despesaEmEdicao) {
+      updateDespesa(despesaEmEdicao.id, {
+        parcelasPagas: Number(despesaEmEdicao.parcelasPagas),
+        parcelasContratadas: Number(despesaEmEdicao.parcelasContratadas),
+        valor: Number(despesaEmEdicao.valor),
+        tipo: despesaEmEdicao.tipo,
+        fornecedor: despesaEmEdicao.fornecedor,
+        categoria: despesaEmEdicao.categoria,
+      });
+      setIsEditDespesaOpen(false);
+      setDespesaEmEdicao(null);
+    }
   };
 
   return (
@@ -375,9 +398,14 @@ export default function FinanceiroPage() {
                             <TableCell className="text-center">{despesa.parcelasPagas}/{despesa.parcelasContratadas}</TableCell>
                             <TableCell className="text-right font-medium text-green-600">{formatCurrency(valorPago)}</TableCell>
                             <TableCell>
-                              <Button variant="ghost" size="sm" onClick={() => deleteDespesa(despesa.id)} className="text-destructive hover:text-destructive">
-                                Excluir
-                              </Button>
+                              <div className="flex gap-1">
+                                <Button variant="ghost" size="sm" onClick={() => openEditDialog(despesa)}>
+                                  <Pencil className="w-3 h-3" />
+                                </Button>
+                                <Button variant="ghost" size="sm" onClick={() => deleteDespesa(despesa.id)} className="text-destructive hover:text-destructive">
+                                  Excluir
+                                </Button>
+                              </div>
                             </TableCell>
                           </TableRow>
                         );
@@ -418,6 +446,65 @@ export default function FinanceiroPage() {
           </Tabs>
         </>
       )}
+
+      <Dialog open={isEditDespesaOpen} onOpenChange={setIsEditDespesaOpen}>
+        <DialogContent className="sm:max-w-[450px]">
+          <DialogHeader>
+            <DialogTitle>Editar Despesa</DialogTitle>
+          </DialogHeader>
+          {despesaEmEdicao && (
+            <form onSubmit={handleUpdateDespesa} className="grid gap-4 py-4">
+              <div className="space-y-2">
+                <Label>Tipo de Despesa</Label>
+                <Input value={despesaEmEdicao.tipo} onChange={e => setDespesaEmEdicao({...despesaEmEdicao, tipo: e.target.value})} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Valor Total (R$)</Label>
+                  <Input type="number" min="0" step="0.01" value={despesaEmEdicao.valor} onChange={e => setDespesaEmEdicao({...despesaEmEdicao, valor: Number(e.target.value)})} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Parcelas Contratadas</Label>
+                  <Input type="number" min="1" value={despesaEmEdicao.parcelasContratadas} onChange={e => setDespesaEmEdicao({...despesaEmEdicao, parcelasContratadas: Number(e.target.value)})} />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Parcelas Pagas</Label>
+                <Input 
+                  type="number" 
+                  min="0" 
+                  max={despesaEmEdicao.parcelasContratadas} 
+                  value={despesaEmEdicao.parcelasPagas} 
+                  onChange={e => setDespesaEmEdicao({...despesaEmEdicao, parcelasPagas: Number(e.target.value)})} 
+                />
+                <p className="text-xs text-muted-foreground">
+                  Valor pago: {formatCurrency(despesaEmEdicao.valor * (despesaEmEdicao.parcelasPagas / despesaEmEdicao.parcelasContratadas))}
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label>Fornecedor</Label>
+                <Input value={despesaEmEdicao.fornecedor} onChange={e => setDespesaEmEdicao({...despesaEmEdicao, fornecedor: e.target.value})} />
+              </div>
+              <div className="space-y-2">
+                <Label>Categoria</Label>
+                <Select value={despesaEmEdicao.categoria} onValueChange={v => setDespesaEmEdicao({...despesaEmEdicao, categoria: v})}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="mao_de_obra">Mão de Obra</SelectItem>
+                    <SelectItem value="materiais">Materiais</SelectItem>
+                    <SelectItem value="equipamentos">Equipamentos</SelectItem>
+                    <SelectItem value="servicos_terceirizados">Serviços Terceirizados</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex justify-end gap-2 mt-4">
+                <Button type="button" variant="outline" onClick={() => setIsEditDespesaOpen(false)}>Cancelar</Button>
+                <Button type="submit">Salvar Alterações</Button>
+              </div>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
