@@ -10,6 +10,7 @@ import {
   Menu,
   X,
   LogOut,
+  Quote,
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -17,6 +18,7 @@ import { useAuth } from "@/contexts/AuthContext";
 const navItems = [
   { to: "/", icon: LayoutDashboard, label: "Dashboard" },
   { to: "/obras", icon: Building2, label: "Obras" },
+  { to: "/orcamentos", icon: Quote, label: "Orçamentos" },
   { to: "/cronograma", icon: CalendarDays, label: "Cronograma" },
   { to: "/diario", icon: ClipboardList, label: "Diário de Obra" },
   { to: "/financeiro", icon: DollarSign, label: "Financeiro" },
