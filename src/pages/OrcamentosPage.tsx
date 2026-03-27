@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Plus, AlertCircle, CheckCircle, Clock, Phone, TrendingUp, Users, FileText } from "lucide-react";
+import { Plus, AlertCircle, CheckCircle, Clock, Phone, TrendingUp, Users, FileText, Lock, CreditCard } from "lucide-react";
 import { formatCurrency, formatDate } from "@/data/mockData";
 
 export type StatusOrcamento = 'novo' | 'em_negociacao' | 'aprovado' | 'reprovado' | 'expirado' | 'convertido';
@@ -29,6 +29,14 @@ export interface Orcamento {
   diasSemContato: number;
 }
 
+const PLAN_KEY = 'obra_plano_ativo';
+const CHAVE_CORRETA = 'OBRA-CERTA-2024';
+
+function verificarPlanoAtivo(): boolean {
+  const plano = localStorage.getItem(PLAN_KEY);
+  return plano === 'premium';
+}
+
 export default function OrcamentosPage() {
   const { addObra, obras } = useAppContext();
   const [orcamentos, setOrcamentos] = useState<Orcamento[]>(() => {
@@ -37,6 +45,9 @@ export default function OrcamentosPage() {
   });
   const [isNewOrcamentoOpen, setIsNewOrcamentoOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<StatusOrcamento | "todos">("todos");
+  const [showActivationDialog, setShowActivationDialog] = useState(false);
+  const [chaveInput, setChaveInput] = useState("");
+  const [chaveErro, setChaveErro] = useState("");
 
   const [novoOrcamento, setNovoOrcamento] = useState({
     cliente: '',
@@ -82,6 +93,29 @@ export default function OrcamentosPage() {
 
   const deleteOrcamento = (id: string) => {
     saveOrcamentos(orcamentos.filter(o => o.id !== id));
+  };
+
+  const handleNovaOrcamentoClick = () => {
+    const planoAtivo = verificarPlanoAtivo();
+    const limite = planoAtivo ? Infinity : 20;
+    
+    if (orcamentos.length >= limite) {
+      setShowActivationDialog(true);
+    } else {
+      setIsNewOrcamentoOpen(true);
+    }
+  };
+
+  const ativarPlano = () => {
+    if (chaveInput.trim().toUpperCase() === CHAVE_CORRETA) {
+      localStorage.setItem(PLAN_KEY, 'premium');
+      setShowActivationDialog(false);
+      setChaveInput("");
+      setChaveErro("");
+      setIsNewOrcamentoOpen(true);
+    } else {
+      setChaveErro("Chave de ativação inválida. Entre em contato para obter sua chave.");
+    }
   };
 
   const leadsPendentes = orcamentos.filter(o => 
@@ -157,7 +191,7 @@ export default function OrcamentosPage() {
         </div>
         <Dialog open={isNewOrcamentoOpen} onOpenChange={setIsNewOrcamentoOpen}>
           <DialogTrigger asChild>
-            <Button className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2.5 rounded-lg font-medium text-sm hover:opacity-90 transition-opacity">
+            <Button onClick={handleNovaOrcamentoClick} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2.5 rounded-lg font-medium text-sm hover:opacity-90 transition-opacity">
               <Plus className="w-4 h-4" />
               Novo Orçamento
             </Button>
@@ -503,6 +537,52 @@ export default function OrcamentosPage() {
           </Tabs>
         </>
       )}
+
+      <Dialog open={showActivationDialog} onOpenChange={setShowActivationDialog}>
+        <DialogContent className="sm:max-w-[450px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Lock className="w-5 h-5" />
+              Plano Premium Necessário
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <div className="text-center space-y-2">
+              <CreditCard className="w-12 h-12 mx-auto text-primary" />
+              <p className="text-muted-foreground">
+                Você atingiu o limite de 20 orçamentos do plano gratuito.
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Para continuar adicionando orçamentos, ative o plano premium.
+              </p>
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Chave de Ativação</Label>
+              <Input 
+                value={chaveInput} 
+                onChange={e => setChaveInput(e.target.value)}
+                placeholder="Digite sua chave de ativação"
+                onKeyDown={e => e.key === 'Enter' && ativarPlano()}
+              />
+              {chaveErro && <p className="text-sm text-destructive">{chaveErro}</p>}
+            </div>
+
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" onClick={() => {
+                setShowActivationDialog(false);
+                setChaveInput("");
+                setChaveErro("");
+              }}>
+                Cancelar
+              </Button>
+              <Button onClick={ativarPlano}>
+                Ativar Plano Premium
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
