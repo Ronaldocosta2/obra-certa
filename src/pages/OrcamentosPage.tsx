@@ -97,7 +97,7 @@ export default function OrcamentosPage() {
 
   const handleNovaOrcamentoClick = () => {
     const planoAtivo = verificarPlanoAtivo();
-    const limite = planoAtivo ? Infinity : 20;
+    const limite = planoAtivo ? Infinity : 3;
     
     if (orcamentos.length >= limite) {
       setShowActivationDialog(true);
@@ -550,7 +550,7 @@ export default function OrcamentosPage() {
             <div className="text-center space-y-2">
               <CreditCard className="w-12 h-12 mx-auto text-primary" />
               <p className="text-muted-foreground">
-                Você atingiu o limite de 20 orçamentos do plano gratuito.
+                Você atingiu o limite de 3 orçamentos do plano gratuito.
               </p>
               <p className="text-sm text-muted-foreground">
                 Para continuar adicionando orçamentos, ative o plano premium.
