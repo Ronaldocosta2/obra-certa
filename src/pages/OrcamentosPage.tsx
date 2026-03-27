@@ -1,5 +1,5 @@
 import { useAppContext } from "@/contexts/AppContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Plus, AlertCircle, CheckCircle, Clock, Phone, TrendingUp, Users, FileText, Lock, CreditCard } from "lucide-react";
+import { Plus, AlertCircle, CheckCircle, Clock, Phone, TrendingUp, FileText } from "lucide-react";
 import { formatCurrency, formatDate } from "@/data/mockData";
 
 export type StatusOrcamento = 'novo' | 'em_negociacao' | 'aprovado' | 'reprovado' | 'expirado' | 'convertido';
@@ -29,14 +29,6 @@ export interface Orcamento {
   diasSemContato: number;
 }
 
-const PLAN_KEY = 'obra_plano_ativo';
-const CHAVE_CORRETA = 'OBRA-CERTA-2024';
-
-function verificarPlanoAtivo(): boolean {
-  const plano = localStorage.getItem(PLAN_KEY);
-  return plano === 'premium';
-}
-
 export default function OrcamentosPage() {
   const { addObra, obras } = useAppContext();
   const [orcamentos, setOrcamentos] = useState<Orcamento[]>(() => {
@@ -45,9 +37,9 @@ export default function OrcamentosPage() {
   });
   const [isNewOrcamentoOpen, setIsNewOrcamentoOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<StatusOrcamento | "todos">("todos");
-  const [showActivationDialog, setShowActivationDialog] = useState(false);
-  const [chaveInput, setChaveInput] = useState("");
-  const [chaveErro, setChaveErro] = useState("");
+  const [notificationSent, setNotificationSent] = useState(() => {
+    return localStorage.getItem('orcamento_notification_sent') === 'true';
+  });
 
   const [novoOrcamento, setNovoOrcamento] = useState({
     cliente: '',
@@ -58,6 +50,36 @@ export default function OrcamentosPage() {
     descricao: '',
     observacoes: ''
   });
+
+  useEffect(() => {
+    if (notificationSent || orcamentos.length === 0) return;
+    
+    const leadsPendentes = orcamentos.filter(o => 
+      o.status === 'novo' || o.status === 'em_negociacao'
+    );
+
+    if (leadsPendentes.length > 0 && "Notification" in window) {
+      if (Notification.permission === "granted") {
+        new Notification("ObraCerta - Leads Pendentes", {
+          body: `Você tem ${leadsPendentes.length} lead(s) pendente(s): ${leadsPendentes.map(o => o.cliente).join(", ")}`,
+          icon: "/favicon.ico"
+        });
+        setNotificationSent(true);
+        localStorage.setItem('orcamento_notification_sent', 'true');
+      } else if (Notification.permission !== "denied") {
+        Notification.requestPermission().then(permission => {
+          if (permission === "granted") {
+            new Notification("ObraCerta - Leads Pendentes", {
+              body: `Você tem ${leadsPendentes.length} lead(s) pendente(s): ${leadsPendentes.map(o => o.cliente).join(", ")}`,
+              icon: "/favicon.ico"
+            });
+            setNotificationSent(true);
+            localStorage.setItem('orcamento_notification_sent', 'true');
+          }
+        });
+      }
+    }
+  }, [orcamentos, notificationSent]);
 
   const saveOrcamentos = (newOrcamentos: Orcamento[]) => {
     setOrcamentos(newOrcamentos);
@@ -87,8 +109,20 @@ export default function OrcamentosPage() {
   };
 
   const updateStatus = (id: string, status: StatusOrcamento) => {
+    const oldOrcamento = orcamentos.find(o => o.id === id);
     const updated = orcamentos.map(o => o.id === id ? { ...o, status } : o);
     saveOrcamentos(updated);
+
+    if ((status === 'novo' || status === 'em_negociacao') && oldOrcamento && oldOrcamento.status !== 'novo' && oldOrcamento.status !== 'em_negociacao') {
+      if ("Notification" in window && Notification.permission === "granted") {
+        new Notification("ObraCerta - Novo Lead Pendente", {
+          body: `Novo lead pendente: ${oldOrcamento.cliente}`,
+          icon: "/favicon.ico"
+        });
+      }
+      setNotificationSent(false);
+      localStorage.setItem('orcamento_notification_sent', 'false');
+    }
   };
 
   const deleteOrcamento = (id: string) => {
@@ -96,26 +130,7 @@ export default function OrcamentosPage() {
   };
 
   const handleNovaOrcamentoClick = () => {
-    const planoAtivo = verificarPlanoAtivo();
-    const limite = planoAtivo ? Infinity : 3;
-    
-    if (orcamentos.length >= limite) {
-      setShowActivationDialog(true);
-    } else {
-      setIsNewOrcamentoOpen(true);
-    }
-  };
-
-  const ativarPlano = () => {
-    if (chaveInput.trim().toUpperCase() === CHAVE_CORRETA) {
-      localStorage.setItem(PLAN_KEY, 'premium');
-      setShowActivationDialog(false);
-      setChaveInput("");
-      setChaveErro("");
-      setIsNewOrcamentoOpen(true);
-    } else {
-      setChaveErro("Chave de ativação inválida. Entre em contato para obter sua chave.");
-    }
+    setIsNewOrcamentoOpen(true);
   };
 
   const leadsPendentes = orcamentos.filter(o => 
@@ -537,52 +552,6 @@ export default function OrcamentosPage() {
           </Tabs>
         </>
       )}
-
-      <Dialog open={showActivationDialog} onOpenChange={setShowActivationDialog}>
-        <DialogContent className="sm:max-w-[450px]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Lock className="w-5 h-5" />
-              Plano Premium Necessário
-            </DialogTitle>
-          </DialogHeader>
-          <div className="py-4 space-y-4">
-            <div className="text-center space-y-2">
-              <CreditCard className="w-12 h-12 mx-auto text-primary" />
-              <p className="text-muted-foreground">
-                Você atingiu o limite de 3 orçamentos do plano gratuito.
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Para continuar adicionando orçamentos, ative o plano premium.
-              </p>
-            </div>
-            
-            <div className="space-y-2">
-              <Label>Chave de Ativação</Label>
-              <Input 
-                value={chaveInput} 
-                onChange={e => setChaveInput(e.target.value)}
-                placeholder="Digite sua chave de ativação"
-                onKeyDown={e => e.key === 'Enter' && ativarPlano()}
-              />
-              {chaveErro && <p className="text-sm text-destructive">{chaveErro}</p>}
-            </div>
-
-            <div className="flex gap-2 justify-end">
-              <Button variant="outline" onClick={() => {
-                setShowActivationDialog(false);
-                setChaveInput("");
-                setChaveErro("");
-              }}>
-                Cancelar
-              </Button>
-              <Button onClick={ativarPlano}>
-                Ativar Plano Premium
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
