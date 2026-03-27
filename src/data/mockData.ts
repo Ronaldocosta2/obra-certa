@@ -58,6 +58,8 @@ export interface Despesa {
   data: string;
   fornecedor: string;
   categoria: 'mao_de_obra' | 'materiais' | 'equipamentos' | 'servicos_terceirizados';
+  parcelasContratadas: number;
+  parcelasPagas: number;
 }
 
 export const mockObras: Obra[] = [
@@ -180,11 +182,11 @@ export const mockAtividades: Atividade[] = [
 ];
 
 export const mockDespesas: Despesa[] = [
-  { id: 'd1', obraId: '1', tipo: 'Concreto Usinado', valor: 850000, data: '2024-06-15', fornecedor: 'Concreteira ABC', categoria: 'materiais' },
-  { id: 'd2', obraId: '1', tipo: 'Mão de obra - Fundações', valor: 420000, data: '2024-05-01', fornecedor: 'Equipe Própria', categoria: 'mao_de_obra' },
-  { id: 'd3', obraId: '1', tipo: 'Aço CA-50', valor: 680000, data: '2024-07-20', fornecedor: 'Gerdau', categoria: 'materiais' },
-  { id: 'd4', obraId: '1', tipo: 'Guindastes', valor: 320000, data: '2024-08-10', fornecedor: 'Locação Total', categoria: 'equipamentos' },
-  { id: 'd5', obraId: '1', tipo: 'Projeto Elétrico', valor: 180000, data: '2024-03-15', fornecedor: 'EletroProjetos', categoria: 'servicos_terceirizados' },
+  { id: 'd1', obraId: '1', tipo: 'Concreto Usinado', valor: 850000, data: '2024-06-15', fornecedor: 'Concreteira ABC', categoria: 'materiais', parcelasContratadas: 3, parcelasPagas: 3 },
+  { id: 'd2', obraId: '1', tipo: 'Mão de obra - Fundações', valor: 420000, data: '2024-05-01', fornecedor: 'Equipe Própria', categoria: 'mao_de_obra', parcelasContratadas: 4, parcelasPagas: 4 },
+  { id: 'd3', obraId: '1', tipo: 'Aço CA-50', valor: 680000, data: '2024-07-20', fornecedor: 'Gerdau', categoria: 'materiais', parcelasContratadas: 2, parcelasPagas: 1 },
+  { id: 'd4', obraId: '1', tipo: 'Guindastes', valor: 320000, data: '2024-08-10', fornecedor: 'Locação Total', categoria: 'equipamentos', parcelasContratadas: 6, parcelasPagas: 4 },
+  { id: 'd5', obraId: '1', tipo: 'Projeto Elétrico', valor: 180000, data: '2024-03-15', fornecedor: 'EletroProjetos', categoria: 'servicos_terceirizados', parcelasContratadas: 5, parcelasPagas: 2 },
 ];
 
 export function formatCurrency(value: number): string {

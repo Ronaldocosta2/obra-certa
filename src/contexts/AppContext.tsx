@@ -167,10 +167,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const newDesp = { ...data, id: crypto.randomUUID() };
     setDespesas(prev => [...prev, newDesp]);
     
-    // Atualiza o custoRealizado da obra correspondente
+    const valorPago = data.valor * (data.parcelasPagas / data.parcelasContratadas);
     setObras(prev => prev.map(o => {
       if (o.id === data.obraId) {
-        return { ...o, custoRealizado: o.custoRealizado + data.valor };
+        return { ...o, custoRealizado: o.custoRealizado + valorPago };
       }
       return o;
     }));
@@ -179,11 +179,17 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const oldDesp = despesas.find(d => d.id === id);
     setDespesas(prev => prev.map(d => d.id === id ? { ...d, ...data } : d));
     
-    // Recalcula o custo da obra correspondente se o valor ou obra mudarem
-    if (oldDesp && data.valor !== undefined && data.valor !== oldDesp.valor && (!data.obraId || data.obraId === oldDesp.obraId)) {
+    if (oldDesp) {
+      const newValor = data.valor ?? oldDesp.valor;
+      const newPagas = data.parcelasPagas ?? oldDesp.parcelasPagas;
+      const newContratadas = data.parcelasContratadas ?? oldDesp.parcelasContratadas;
+      const oldValorPago = oldDesp.valor * (oldDesp.parcelasPagas / oldDesp.parcelasContratadas);
+      const newValorPago = newValor * (newPagas / newContratadas);
+      
+      const obraId = data.obraId ?? oldDesp.obraId;
       setObras(prev => prev.map(o => {
-        if (o.id === oldDesp.obraId) {
-          return { ...o, custoRealizado: o.custoRealizado - oldDesp.valor + (data.valor ?? 0) };
+        if (o.id === obraId) {
+          return { ...o, custoRealizado: o.custoRealizado - oldValorPago + newValorPago };
         }
         return o;
       }));
@@ -194,9 +200,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setDespesas(prev => prev.filter(d => d.id !== id));
     
     if (oldDesp) {
+      const valorPago = oldDesp.valor * (oldDesp.parcelasPagas / oldDesp.parcelasContratadas);
       setObras(prev => prev.map(o => {
         if (o.id === oldDesp.obraId) {
-          return { ...o, custoRealizado: Math.max(0, o.custoRealizado - oldDesp.valor) };
+          return { ...o, custoRealizado: Math.max(0, o.custoRealizado - valorPago) };
         }
         return o;
       }));

@@ -28,12 +28,19 @@ export default function FinanceiroPage() {
     valor: 0,
     data: new Date().toISOString().split('T')[0],
     fornecedor: '',
-    categoria: 'materiais' as Categoria
+    categoria: 'materiais' as Categoria,
+    parcelasContratadas: 1,
+    parcelasPagas: 0
   });
 
   const handleCreateDespesa = (e: React.FormEvent) => {
     e.preventDefault();
-    addDespesa(novaDespesa);
+    const despesaData = {
+      ...novaDespesa,
+      parcelasContratadas: novaDespesa.parcelasContratadas || 1,
+      parcelasPagas: novaDespesa.parcelasPagas || 0
+    };
+    addDespesa(despesaData);
     setIsNewDespesaOpen(false);
     setNovaDespesa({
       obraId: '',
@@ -41,7 +48,9 @@ export default function FinanceiroPage() {
       valor: 0,
       data: new Date().toISOString().split('T')[0],
       fornecedor: '',
-      categoria: 'materiais'
+      categoria: 'materiais',
+      parcelasContratadas: 1,
+      parcelasPagas: 0
     });
   };
 
@@ -68,17 +77,25 @@ export default function FinanceiroPage() {
   };
 
   const totalDespesas = despesasFiltradas.reduce((acc, d) => acc + d.valor, 0);
+  const totalPago = despesasFiltradas.reduce((acc, d) => acc + (d.valor * (d.parcelasPagas / d.parcelasContratadas)), 0);
   
   const totalPorCategoria = {
-    mao_de_obra: despesas.filter(d => d.categoria === 'mao_de_obra').reduce((acc, d) => acc + d.valor, 0),
-    materiais: despesas.filter(d => d.categoria === 'materiais').reduce((acc, d) => acc + d.valor, 0),
-    equipamentos: despesas.filter(d => d.categoria === 'equipamentos').reduce((acc, d) => acc + d.valor, 0),
-    servicos_terceirizados: despesas.filter(d => d.categoria === 'servicos_terceirizados').reduce((acc, d) => acc + d.valor, 0),
+    mao_de_obra: despesasFiltradas.filter(d => d.categoria === 'mao_de_obra').reduce((acc, d) => acc + d.valor, 0),
+    materiais: despesasFiltradas.filter(d => d.categoria === 'materiais').reduce((acc, d) => acc + d.valor, 0),
+    equipamentos: despesasFiltradas.filter(d => d.categoria === 'equipamentos').reduce((acc, d) => acc + d.valor, 0),
+    servicos_terceirizados: despesasFiltradas.filter(d => d.categoria === 'servicos_terceirizados').reduce((acc, d) => acc + d.valor, 0),
+  };
+
+  const totalPagoPorCategoria = {
+    mao_de_obra: despesasFiltradas.filter(d => d.categoria === 'mao_de_obra').reduce((acc, d) => acc + (d.valor * (d.parcelasPagas / d.parcelasContratadas)), 0),
+    materiais: despesasFiltradas.filter(d => d.categoria === 'materiais').reduce((acc, d) => acc + (d.valor * (d.parcelasPagas / d.parcelasContratadas)), 0),
+    equipamentos: despesasFiltradas.filter(d => d.categoria === 'equipamentos').reduce((acc, d) => acc + (d.valor * (d.parcelasPagas / d.parcelasContratadas)), 0),
+    servicos_terceirizados: despesasFiltradas.filter(d => d.categoria === 'servicos_terceirizados').reduce((acc, d) => acc + (d.valor * (d.parcelasPagas / d.parcelasContratadas)), 0),
   };
 
   const obrasComDespesas = obras.filter(o => despesas.some(d => d.obraId === o.id));
   const ObraSelecionada = obras.find(o => o.id === selectedObra);
-  const despesaObra = ObraSelecionada ? despesas.filter(d => d.obraId === ObraSelecionada.id).reduce((acc, d) => acc + d.valor, 0) : 0;
+  const despesaObra = ObraSelecionada ? despesas.filter(d => d.obraId === ObraSelecionada.id).reduce((acc, d) => acc + (d.valor * (d.parcelasPagas / d.parcelasContratadas)), 0) : 0;
 
   const getCategoriaLabel = (cat: Categoria) => {
     const labels: Record<Categoria, string> = {
@@ -160,6 +177,16 @@ export default function FinanceiroPage() {
                   </SelectContent>
                 </Select>
               </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Parcelas Contratadas</Label>
+                  <Input type="number" min="1" value={novaDespesa.parcelasContratadas || ''} onChange={e => setNovaDespesa({...novaDespesa, parcelasContratadas: Number(e.target.value)})} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Parcelas Pagas</Label>
+                  <Input type="number" min="0" max={novaDespesa.parcelasContratadas} value={novaDespesa.parcelasPagas || ''} onChange={e => setNovaDespesa({...novaDespesa, parcelasPagas: Number(e.target.value)})} />
+                </div>
+              </div>
               <div className="flex justify-end gap-2 mt-4">
                 <Button type="button" variant="outline" onClick={() => setIsNewDespesaOpen(false)}>Cancelar</Button>
                 <Button type="submit">Salvar Despesa</Button>
@@ -206,12 +233,23 @@ export default function FinanceiroPage() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Total de Despesas</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Total Contratado</CardTitle>
                 <DollarSign className="w-4 h-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{formatCurrency(totalDespesas)}</div>
                 <p className="text-xs text-muted-foreground">{despesasFiltradas.length} transações</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Total Pago</CardTitle>
+                <DollarSign className="w-4 h-4 text-green-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-green-600">{formatCurrency(totalPago)}</div>
+                <p className="text-xs text-muted-foreground">{(totalPago / totalDespesas * 100).toFixed(1)}% do total</p>
               </CardContent>
             </Card>
 
@@ -306,24 +344,23 @@ export default function FinanceiroPage() {
                       <TableHead>Tipo</TableHead>
                       <TableHead>Fornecedor</TableHead>
                       <TableHead>Categoria</TableHead>
-                      <TableHead className="cursor-pointer text-right" onClick={() => toggleSort("valor")}>
-                        <div className="flex items-center justify-end gap-1">
-                          Valor <ArrowUpDown className="w-3 h-3" />
-                        </div>
-                      </TableHead>
+                      <TableHead className="text-right">Valor Total</TableHead>
+                      <TableHead className="text-center">Parcelas</TableHead>
+                      <TableHead className="text-right">Valor Pago</TableHead>
                       <TableHead></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {despesasFiltradas.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                        <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                           Nenhuma despesa encontrada.
                         </TableCell>
                       </TableRow>
                     ) : (
                       despesasFiltradas.map((despesa) => {
                         const obra = obras.find(o => o.id === despesa.obraId);
+                        const valorPago = despesa.valor * (despesa.parcelasPagas / despesa.parcelasContratadas);
                         return (
                           <TableRow key={despesa.id}>
                             <TableCell>{formatDate(despesa.data)}</TableCell>
@@ -335,6 +372,8 @@ export default function FinanceiroPage() {
                               </span>
                             </TableCell>
                             <TableCell className="text-right font-medium">{formatCurrency(despesa.valor)}</TableCell>
+                            <TableCell className="text-center">{despesa.parcelasPagas}/{despesa.parcelasContratadas}</TableCell>
+                            <TableCell className="text-right font-medium text-green-600">{formatCurrency(valorPago)}</TableCell>
                             <TableCell>
                               <Button variant="ghost" size="sm" onClick={() => deleteDespesa(despesa.id)} className="text-destructive hover:text-destructive">
                                 Excluir
@@ -358,9 +397,12 @@ export default function FinanceiroPage() {
                       <PieChart className="w-4 h-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">{formatCurrency(valor)}</div>
+                      <div className="text-xl font-bold">{formatCurrency(valor)}</div>
+                      <div className="text-sm text-green-600 mt-1">
+                        Pago: {formatCurrency(totalPagoPorCategoria[cat as Categoria])}
+                      </div>
                       <p className="text-xs text-muted-foreground">
-                        {despesas.filter(d => d.categoria === cat).length} despesas
+                        {despesasFiltradas.filter(d => d.categoria === cat).length} despesas
                       </p>
                       <div className="mt-2 w-full bg-muted rounded-full h-2">
                         <div 
