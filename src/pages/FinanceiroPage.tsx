@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, DollarSign, TrendingUp, TrendingDown, Wallet, PieChart, ArrowUpDown, Pencil } from "lucide-react";
+import { Plus, DollarSign, TrendingUp, TrendingDown, Wallet, PieChart, ArrowUpDown, Pencil, Filter, X } from "lucide-react";
 import { formatCurrency, formatDate } from "@/data/mockData";
 
 type Categoria = 'mao_de_obra' | 'materiais' | 'equipamentos' | 'servicos_terceirizados';
@@ -23,6 +23,10 @@ export default function FinanceiroPage() {
   const [categoriaFilter, setCategoriaFilter] = useState<Categoria | "todos">("todos");
   const [sortField, setSortField] = useState<"data" | "valor">("data");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [showFilters, setShowFilters] = useState(false);
+  const [filterDataInicio, setFilterDataInicio] = useState("");
+  const [filterDataFim, setFilterDataFim] = useState("");
+  const [filterFornecedor, setFilterFornecedor] = useState("");
 
   const [novaDespesa, setNovaDespesa] = useState({
     obraId: '',
@@ -59,6 +63,9 @@ export default function FinanceiroPage() {
   const despesasFiltradas = despesas
     .filter(d => !selectedObra || d.obraId === selectedObra)
     .filter(d => categoriaFilter === "todos" || d.categoria === categoriaFilter)
+    .filter(d => !filterDataInicio || new Date(d.data) >= new Date(filterDataInicio))
+    .filter(d => !filterDataFim || new Date(d.data) <= new Date(filterDataFim))
+    .filter(d => !filterFornecedor || d.fornecedor?.toLowerCase().includes(filterFornecedor.toLowerCase()))
     .sort((a, b) => {
       if (sortField === "data") {
         return sortOrder === "asc" 
@@ -68,6 +75,14 @@ export default function FinanceiroPage() {
         return sortOrder === "asc" ? a.valor - b.valor : b.valor - a.valor;
       }
     });
+
+  const hasActiveFilters = filterDataInicio || filterDataFim || filterFornecedor;
+
+  const clearFilters = () => {
+    setFilterDataInicio("");
+    setFilterDataFim("");
+    setFilterFornecedor("");
+  };
 
   const toggleSort = (field: "data" | "valor") => {
     if (sortField === field) {
@@ -151,12 +166,12 @@ export default function FinanceiroPage() {
           <DialogTrigger asChild>
             <Button className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2.5 rounded-lg font-medium text-sm hover:opacity-90 transition-opacity">
               <Plus className="w-4 h-4" />
-              Nova Despesa
+              Nova despesa
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
-              <DialogTitle>Nova Despesa</DialogTitle>
+              <DialogTitle>Nova despesa</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleCreateDespesa} className="grid gap-4 py-4">
               <div className="space-y-2">
@@ -171,7 +186,7 @@ export default function FinanceiroPage() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Tipo de Despesa *</Label>
+                <Label>Tipo de despesa *</Label>
                 <Input required value={novaDespesa.tipo} onChange={e => setNovaDespesa({...novaDespesa, tipo: e.target.value})} placeholder="Ex: Concreto Usinado" />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -202,11 +217,11 @@ export default function FinanceiroPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Parcelas Contratadas</Label>
+                  <Label>Parcelas contratadas</Label>
                   <Input type="number" min="1" value={novaDespesa.parcelasContratadas || ''} onChange={e => setNovaDespesa({...novaDespesa, parcelasContratadas: Number(e.target.value)})} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Parcelas Pagas</Label>
+                  <Label>Parcelas pagas</Label>
                   <Input type="number" min="0" max={novaDespesa.parcelasContratadas} value={novaDespesa.parcelasPagas || ''} onChange={e => setNovaDespesa({...novaDespesa, parcelasPagas: Number(e.target.value)})} />
                 </div>
               </div>
@@ -227,7 +242,7 @@ export default function FinanceiroPage() {
               selectedObra === "" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground hover:bg-muted"
             }`}
           >
-            Todas as Obras
+            Todas as obras
           </button>
           {obras.map(o => (
             <button
@@ -256,7 +271,7 @@ export default function FinanceiroPage() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Total Contratado</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Total contratado</CardTitle>
                 <DollarSign className="w-4 h-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -267,7 +282,7 @@ export default function FinanceiroPage() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Total Pago</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Total pago</CardTitle>
                 <DollarSign className="w-4 h-4 text-green-500" />
               </CardHeader>
               <CardContent>
@@ -280,7 +295,7 @@ export default function FinanceiroPage() {
               <>
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">Valor Total Obra</CardTitle>
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Valor total obra</CardTitle>
                     <TrendingUp className="w-4 h-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
@@ -290,7 +305,7 @@ export default function FinanceiroPage() {
                 </Card>
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">Despesas da Obra</CardTitle>
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Despesas da obra</CardTitle>
                     <TrendingDown className="w-4 h-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
@@ -300,7 +315,7 @@ export default function FinanceiroPage() {
                 </Card>
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">Saldo Restante</CardTitle>
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Saldo restante</CardTitle>
                     <Wallet className="w-4 h-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
@@ -339,21 +354,73 @@ export default function FinanceiroPage() {
             </TabsList>
 
             <TabsContent value="despesas" className="space-y-4">
-              <div className="flex gap-2 flex-wrap">
-                {(["todos", "mao_de_obra", "materiais", "equipamentos", "servicos_terceirizados"] as const).map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setCategoriaFilter(cat)}
-                    className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
-                      categoriaFilter === cat
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-secondary text-secondary-foreground hover:bg-muted"
-                    }`}
-                  >
-                    {cat === "todos" ? "Todos" : getCategoriaLabel(cat as Categoria)}
-                  </button>
-                ))}
+              <div className="flex gap-2 flex-wrap items-center">
+                <button
+                  onClick={() => setCategoriaFilter("todos")}
+                  className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                    categoriaFilter === "todos"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-secondary text-secondary-foreground hover:bg-muted"
+                  }`}
+                >
+                  Todos
+                </button>
+                <Button
+                  variant={showFilters ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="ml-auto inline-flex items-center gap-2"
+                >
+                  <Filter className="w-4 h-4" />
+                  Filtros
+                  {hasActiveFilters && (
+                    <span className="bg-primary-foreground text-primary text-xs px-1.5 py-0.5 rounded-full">
+                      {(!!filterDataInicio ? 1 : 0) + (!!filterDataFim ? 1 : 0) + (!!filterFornecedor ? 1 : 0)}
+                    </span>
+                  )}
+                </Button>
               </div>
+
+              {showFilters && (
+                <Card>
+                  <CardContent className="pt-4">
+                    <div className="grid gap-4 sm:grid-cols-3">
+                      <div className="space-y-2">
+                        <Label className="text-xs">Data início</Label>
+                        <Input
+                          type="date"
+                          value={filterDataInicio}
+                          onChange={(e) => setFilterDataInicio(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs">Data fim</Label>
+                        <Input
+                          type="date"
+                          value={filterDataFim}
+                          onChange={(e) => setFilterDataFim(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs">Fornecedor</Label>
+                        <Input
+                          placeholder="Buscar fornecedor..."
+                          value={filterFornecedor}
+                          onChange={(e) => setFilterFornecedor(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    {hasActiveFilters && (
+                      <div className="mt-4 flex justify-end">
+                        <Button variant="ghost" size="sm" onClick={clearFilters} className="text-muted-foreground">
+                          <X className="w-4 h-4 mr-1" />
+                          Limpar Filtros
+                        </Button>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
 
               <Card>
                 <Table>
@@ -367,9 +434,9 @@ export default function FinanceiroPage() {
                       <TableHead>Tipo</TableHead>
                       <TableHead>Fornecedor</TableHead>
                       <TableHead>Categoria</TableHead>
-                      <TableHead className="text-right">Valor Total</TableHead>
+                      <TableHead className="text-right">Valor total</TableHead>
                       <TableHead className="text-center">Parcelas</TableHead>
-                      <TableHead className="text-right">Valor Pago</TableHead>
+                      <TableHead className="text-right">Valor pago</TableHead>
                       <TableHead></TableHead>
                     </TableRow>
                   </TableHeader>
@@ -450,26 +517,26 @@ export default function FinanceiroPage() {
       <Dialog open={isEditDespesaOpen} onOpenChange={setIsEditDespesaOpen}>
         <DialogContent className="sm:max-w-[450px]">
           <DialogHeader>
-            <DialogTitle>Editar Despesa</DialogTitle>
+            <DialogTitle>Editar despesa</DialogTitle>
           </DialogHeader>
           {despesaEmEdicao && (
             <form onSubmit={handleUpdateDespesa} className="grid gap-4 py-4">
               <div className="space-y-2">
-                <Label>Tipo de Despesa</Label>
+                <Label>Tipo de despesa</Label>
                 <Input value={despesaEmEdicao.tipo} onChange={e => setDespesaEmEdicao({...despesaEmEdicao, tipo: e.target.value})} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Valor Total (R$)</Label>
+                  <Label>Valor total (R$)</Label>
                   <Input type="number" min="0" step="0.01" value={despesaEmEdicao.valor} onChange={e => setDespesaEmEdicao({...despesaEmEdicao, valor: Number(e.target.value)})} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Parcelas Contratadas</Label>
+                  <Label>Parcelas contratadas</Label>
                   <Input type="number" min="1" value={despesaEmEdicao.parcelasContratadas} onChange={e => setDespesaEmEdicao({...despesaEmEdicao, parcelasContratadas: Number(e.target.value)})} />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Parcelas Pagas</Label>
+                <Label>Parcelas pagas</Label>
                 <Input 
                   type="number" 
                   min="0" 

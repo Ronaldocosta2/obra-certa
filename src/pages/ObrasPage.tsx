@@ -123,12 +123,12 @@ export default function ObrasPage() {
           <DialogTrigger asChild>
             <Button onClick={handleNovaObraClick} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2.5 rounded-lg font-medium text-sm hover:opacity-90 transition-opacity">
               <Plus className="w-4 h-4" />
-              Nova Obra
+              Nova obra
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[700px] h-[80vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Cadastrar Nova Obra</DialogTitle>
+              <DialogTitle>Cadastrar nova obra</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleCreateObra} className="grid sm:grid-cols-2 gap-4 py-4">
               <div className="space-y-2">
@@ -141,22 +141,22 @@ export default function ObrasPage() {
               </div>
               <div className="space-y-2">
                 <Label>Cliente</Label>
-                <Input value={newObra.cliente} onChange={e => setNewObra({...newObra, cliente: e.target.value})} placeholder="Nome do Cliente" />
+                <Input value={newObra.cliente} onChange={e => setNewObra({...newObra, cliente: e.target.value})} placeholder="Nome do cliente" />
               </div>
               <div className="space-y-2">
-                <Label>Responsável Técnico</Label>
-                <Input value={newObra.responsavelTecnico} onChange={e => setNewObra({...newObra, responsavelTecnico: e.target.value})} placeholder="Eng. Responsável" />
+                <Label>Responsável técnico</Label>
+                <Input value={newObra.responsavelTecnico} onChange={e => setNewObra({...newObra, responsavelTecnico: e.target.value})} placeholder="Eng. responsável" />
               </div>
               <div className="space-y-2 sm:col-span-2">
                 <Label>Endereço</Label>
                 <Input value={newObra.endereco} onChange={e => setNewObra({...newObra, endereco: e.target.value})} placeholder="Endereço completo" />
               </div>
               <div className="space-y-2">
-                <Label>Data de Início</Label>
+                <Label>Data de início</Label>
                 <Input type="date" value={newObra.dataInicio} onChange={e => setNewObra({...newObra, dataInicio: e.target.value})} />
               </div>
               <div className="space-y-2">
-                <Label>Data Prevista de Conclusão</Label>
+                <Label>Data prevista de conclusão</Label>
                 <Input type="date" value={newObra.dataPrevistaConclusao} onChange={e => setNewObra({...newObra, dataPrevistaConclusao: e.target.value})} />
               </div>
               <div className="space-y-2">
@@ -164,11 +164,11 @@ export default function ObrasPage() {
                 <Input type="number" min="0" step="0.01" value={newObra.valorTotal || ''} onChange={e => setNewObra({...newObra, valorTotal: Number(e.target.value)})} />
               </div>
               <div className="space-y-2">
-                <Label>Área Construída (m²)</Label>
+                <Label>Área construída (m²)</Label>
                 <Input type="number" min="0" step="0.01" value={newObra.areaConstruida || ''} onChange={e => setNewObra({...newObra, areaConstruida: Number(e.target.value)})} />
               </div>
               <div className="space-y-2">
-                <Label>Tipo de Obra</Label>
+                <Label>Tipo de obra</Label>
                 <Select value={newObra.tipoObra} onValueChange={v => setNewObra({...newObra, tipoObra: v as any})}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -191,7 +191,7 @@ export default function ObrasPage() {
                 </Select>
               </div>
               <div className="space-y-2 sm:col-span-2">
-                <Label>Descrição / Escopo</Label>
+                <Label>Descrição / escopo</Label>
                 <Textarea value={newObra.descricao} onChange={e => setNewObra({...newObra, descricao: e.target.value})} placeholder="Detalhes do projeto..." className="resize-none" />
               </div>
               <div className="sm:col-span-2 flex justify-end gap-2 mt-4">
@@ -265,7 +265,7 @@ export default function ObrasPage() {
                 <p className="text-sm font-semibold">{formatCurrency(obra.custoRealizado)}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Valor Total</p>
+                <p className="text-xs text-muted-foreground">Valor total</p>
                 <p className="text-sm font-semibold">{formatCurrency(obra.valorTotal)}</p>
               </div>
               <div>

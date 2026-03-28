@@ -166,7 +166,7 @@ export default function DiarioPage() {
               selectedObra === "" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground hover:bg-muted"
             }`}
           >
-            Todas as Obras
+            Todas as obras
           </button>
           {obras.map(o => (
             <button

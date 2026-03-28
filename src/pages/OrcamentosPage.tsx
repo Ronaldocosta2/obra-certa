@@ -208,12 +208,12 @@ export default function OrcamentosPage() {
           <DialogTrigger asChild>
             <Button onClick={handleNovaOrcamentoClick} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2.5 rounded-lg font-medium text-sm hover:opacity-90 transition-opacity">
               <Plus className="w-4 h-4" />
-              Novo Orçamento
+              Novo orçamento
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[600px] h-[80vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Novo Orçamento</DialogTitle>
+              <DialogTitle>Novo orçamento</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleCreateOrcamento} className="grid sm:grid-cols-2 gap-4 py-4">
               <div className="space-y-2">
@@ -233,7 +233,7 @@ export default function OrcamentosPage() {
                 <Input type="number" min="0" step="0.01" value={novoOrcamento.valor || ''} onChange={e => setNovoOrcamento({...novoOrcamento, valor: Number(e.target.value)})} />
               </div>
               <div className="space-y-2">
-                <Label>Data de Validade</Label>
+                <Label>Data de validade</Label>
                 <Input type="date" value={novoOrcamento.dataValidade} onChange={e => setNovoOrcamento({...novoOrcamento, dataValidade: e.target.value})} />
               </div>
               <div className="space-y-2 sm:col-span-2">
@@ -258,7 +258,7 @@ export default function OrcamentosPage() {
           <CardContent className="py-12 text-center">
             <FileText className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
             <p className="text-muted-foreground">Nenhum orçamento encontrado.</p>
-            <p className="text-xs text-muted-foreground mt-1">Clique em "Novo Orçamento" para criar o primeiro.</p>
+            <p className="text-xs text-muted-foreground mt-1">Clique em "Novo orçamento" para criar o primeiro.</p>
           </CardContent>
         </Card>
       ) : (

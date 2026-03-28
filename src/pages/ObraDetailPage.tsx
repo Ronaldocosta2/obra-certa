@@ -290,14 +290,14 @@ export default function ObraDetailPage() {
               <p className="text-xl font-bold font-heading">{formatCurrency(obra.custoRealizado)}</p>
             </div>
             <div className="stat-card">
-              <p className="text-xs text-muted-foreground mb-1">Saldo Restante</p>
+              <p className="text-xs text-muted-foreground mb-1">Saldo restante</p>
               <p className="text-xl font-bold font-heading">{formatCurrency(obra.valorTotal - obra.custoRealizado)}</p>
             </div>
           </div>
 
           <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
             <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-              <Plus className="w-4 h-4 text-primary" /> Registrar Nova Despesa
+              <Plus className="w-4 h-4 text-primary" /> Registrar nova despesa
             </h3>
             <form onSubmit={(e) => {
               e.preventDefault();
@@ -312,7 +312,7 @@ export default function ObraDetailPage() {
               setNovaDespesa({ tipo: "", fornecedor: "", categoria: "materiais", valor: "", data: "" });
             }} className="grid md:grid-cols-6 gap-3 items-end">
               <div className="space-y-1.5 md:col-span-2">
-                <label className="text-xs font-medium text-muted-foreground">Descrição / Item *</label>
+                <label className="text-xs font-medium text-muted-foreground">Descrição / item *</label>
                 <input required className="w-full flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm"
                   value={novaDespesa.tipo} onChange={e => setNovaDespesa({...novaDespesa, tipo: e.target.value})} />
               </div>
@@ -342,7 +342,7 @@ export default function ObraDetailPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border text-left">
-                      <th className="pb-3 font-medium text-muted-foreground">Tipo / Descrição</th>
+                      <th className="pb-3 font-medium text-muted-foreground">Tipo / descrição</th>
                       <th className="pb-3 font-medium text-muted-foreground">Fornecedor</th>
                       <th className="pb-3 font-medium text-muted-foreground">Data</th>
                       <th className="pb-3 font-medium text-muted-foreground text-right">Valor</th>

@@ -46,16 +46,16 @@ export default function DocumentosPage() {
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button className="gap-2">
-              <Plus className="w-4 h-4" /> Anexar Documento
+              <Plus className="w-4 h-4" /> Anexar documento
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Anexar Novo Documento</DialogTitle>
+              <DialogTitle>Anexar novo documento</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleUpload} className="space-y-4 pt-4">
               <div className="space-y-2">
-                <Label>Obra Relacionada *</Label>
+                <Label>Obra relacionada *</Label>
                 <Select required value={novoDoc.obraId} onValueChange={v => setNovoDoc({...novoDoc, obraId: v})}>
                   <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
                   <SelectContent>
@@ -89,7 +89,7 @@ export default function DocumentosPage() {
             <table className="w-full text-sm">
               <thead className="bg-muted/50">
                 <tr className="border-b border-border text-left">
-                  <th className="py-3 px-4 font-medium text-muted-foreground">Nome do Arquivo</th>
+                  <th className="py-3 px-4 font-medium text-muted-foreground">Nome do arquivo</th>
                   <th className="py-3 px-4 font-medium text-muted-foreground">Obra</th>
                   <th className="py-3 px-4 font-medium text-muted-foreground hidden sm:table-cell">Tamanho</th>
                   <th className="py-3 px-4 font-medium text-muted-foreground hidden md:table-cell">Data</th>
