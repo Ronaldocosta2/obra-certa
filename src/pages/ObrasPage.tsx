@@ -254,51 +254,6 @@ export default function ObrasPage() {
         </div>
       )}
 
-      <Dialog open={showActivationDialog} onOpenChange={setShowActivationDialog}>
-        <DialogContent className="sm:max-w-[450px]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Lock className="w-5 h-5" />
-              Plano Premium Necessário
-            </DialogTitle>
-          </DialogHeader>
-          <div className="py-4 space-y-4">
-            <div className="text-center space-y-2">
-              <CreditCard className="w-12 h-12 mx-auto text-primary" />
-              <p className="text-muted-foreground">
-                Você atingiu o limite de 2 obras do plano gratuito.
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Para continuar adicionando obras, Ative o plano premium.
-              </p>
-            </div>
-            
-            <div className="space-y-2">
-              <Label>Chave de Ativação</Label>
-              <Input 
-                value={chaveInput} 
-                onChange={e => setChaveInput(e.target.value)}
-                placeholder="Digite sua chave de ativação"
-                onKeyDown={e => e.key === 'Enter' && ativarPlano()}
-              />
-              {chaveErro && <p className="text-sm text-destructive">{chaveErro}</p>}
-            </div>
-
-            <div className="flex gap-2 justify-end">
-              <Button variant="outline" onClick={() => {
-                setShowActivationDialog(false);
-                setChaveInput("");
-                setChaveErro("");
-              }}>
-                Cancelar
-              </Button>
-              <Button onClick={ativarPlano}>
-                Ativar Plano Premium
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
