@@ -2,7 +2,7 @@ import { useAppContext } from "@/contexts/AppContext";
 import { formatCurrency, statusConfig, type ObraStatus } from "@/data/mockData";
 import { Progress } from "@/components/ui/progress";
 import { Link, useSearchParams } from "react-router-dom";
-import { Plus, Search, Filter, Lock, CreditCard } from "lucide-react";
+import { Plus, Search, Filter } from "lucide-react";
 import { useState, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -11,14 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
-const PLAN_KEY = 'obra_plano_ativo';
-const ACTIVATION_KEY = 'obra_chave_ativacao';
-const CHAVE_CORRETA = 'OBRA-CERTA-2024';
 
-function verificarPlanoAtivo(): boolean {
-  const plano = localStorage.getItem(PLAN_KEY);
-  return plano === 'premium';
-}
 
 export default function ObrasPage() {
   const { obras, addObra } = useAppContext();
@@ -28,9 +21,6 @@ export default function ObrasPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<ObraStatus | "todos">(statusParam || "todos");
   const [isNewObraOpen, setIsNewObraOpen] = useState(false);
-  const [showActivationDialog, setShowActivationDialog] = useState(false);
-  const [chaveInput, setChaveInput] = useState("");
-  const [chaveErro, setChaveErro] = useState("");
 
   // New Obra Form State
   const [newObra, setNewObra] = useState({
@@ -88,29 +78,6 @@ export default function ObrasPage() {
     });
   };
 
-  const handleNovaObraClick = () => {
-    const planoAtivo = verificarPlanoAtivo();
-    const limite = planoAtivo ? Infinity : 2;
-    
-    if (obras.length >= limite) {
-      setShowActivationDialog(true);
-    } else {
-      setIsNewObraOpen(true);
-    }
-  };
-
-  const ativarPlano = () => {
-    if (chaveInput.trim().toUpperCase() === CHAVE_CORRETA) {
-      localStorage.setItem(PLAN_KEY, 'premium');
-      localStorage.setItem(ACTIVATION_KEY, chaveInput.trim());
-      setShowActivationDialog(false);
-      setChaveInput("");
-      setChaveErro("");
-      setIsNewObraOpen(true);
-    } else {
-      setChaveErro("Chave de ativação inválida. Entre em contato para obter sua chave.");
-    }
-  };
 
   return (
     <div className="space-y-6">
@@ -121,7 +88,7 @@ export default function ObrasPage() {
         </div>
         <Dialog open={isNewObraOpen} onOpenChange={setIsNewObraOpen}>
           <DialogTrigger asChild>
-            <Button onClick={handleNovaObraClick} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2.5 rounded-lg font-medium text-sm hover:opacity-90 transition-opacity">
+            <Button onClick={() => setIsNewObraOpen(true)} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2.5 rounded-lg font-medium text-sm hover:opacity-90 transition-opacity">
               <Plus className="w-4 h-4" />
               Nova obra
             </Button>
@@ -287,51 +254,6 @@ export default function ObrasPage() {
         </div>
       )}
 
-      <Dialog open={showActivationDialog} onOpenChange={setShowActivationDialog}>
-        <DialogContent className="sm:max-w-[450px]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Lock className="w-5 h-5" />
-              Plano Premium Necessário
-            </DialogTitle>
-          </DialogHeader>
-          <div className="py-4 space-y-4">
-            <div className="text-center space-y-2">
-              <CreditCard className="w-12 h-12 mx-auto text-primary" />
-              <p className="text-muted-foreground">
-                Você atingiu o limite de 2 obras do plano gratuito.
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Para continuar adicionando obras, Ative o plano premium.
-              </p>
-            </div>
-            
-            <div className="space-y-2">
-              <Label>Chave de Ativação</Label>
-              <Input 
-                value={chaveInput} 
-                onChange={e => setChaveInput(e.target.value)}
-                placeholder="Digite sua chave de ativação"
-                onKeyDown={e => e.key === 'Enter' && ativarPlano()}
-              />
-              {chaveErro && <p className="text-sm text-destructive">{chaveErro}</p>}
-            </div>
-
-            <div className="flex gap-2 justify-end">
-              <Button variant="outline" onClick={() => {
-                setShowActivationDialog(false);
-                setChaveInput("");
-                setChaveErro("");
-              }}>
-                Cancelar
-              </Button>
-              <Button onClick={ativarPlano}>
-                Ativar Plano Premium
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
