@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Plus, DollarSign, TrendingUp, TrendingDown, Wallet, PieChart, ArrowUpDown, Pencil, Filter, X } from "lucide-react";
 import { formatCurrency, formatDate } from "@/data/mockData";
 
-type Categoria = 'mao_de_obra' | 'materiais' | 'equipamentos' | 'servicos_terceirizados';
+type Categoria = 'mao_de_obra' | 'materiais' | 'equipamentos' | 'servicos_terceirizados' | 'alimentacao' | 'outros';
 
 export default function FinanceiroPage() {
   const { despesas, addDespesa, updateDespesa, obras, deleteDespesa } = useAppContext();
@@ -101,6 +101,8 @@ export default function FinanceiroPage() {
     materiais: despesasFiltradas.filter(d => d.categoria === 'materiais').reduce((acc, d) => acc + d.valor, 0),
     equipamentos: despesasFiltradas.filter(d => d.categoria === 'equipamentos').reduce((acc, d) => acc + d.valor, 0),
     servicos_terceirizados: despesasFiltradas.filter(d => d.categoria === 'servicos_terceirizados').reduce((acc, d) => acc + d.valor, 0),
+    alimentacao: despesasFiltradas.filter(d => d.categoria === 'alimentacao').reduce((acc, d) => acc + d.valor, 0),
+    outros: despesasFiltradas.filter(d => d.categoria === 'outros').reduce((acc, d) => acc + d.valor, 0),
   };
 
   const totalPagoPorCategoria = {
@@ -108,6 +110,8 @@ export default function FinanceiroPage() {
     materiais: despesasFiltradas.filter(d => d.categoria === 'materiais').reduce((acc, d) => acc + (d.valor * (d.parcelasPagas / d.parcelasContratadas)), 0),
     equipamentos: despesasFiltradas.filter(d => d.categoria === 'equipamentos').reduce((acc, d) => acc + (d.valor * (d.parcelasPagas / d.parcelasContratadas)), 0),
     servicos_terceirizados: despesasFiltradas.filter(d => d.categoria === 'servicos_terceirizados').reduce((acc, d) => acc + (d.valor * (d.parcelasPagas / d.parcelasContratadas)), 0),
+    alimentacao: despesasFiltradas.filter(d => d.categoria === 'alimentacao').reduce((acc, d) => acc + (d.valor * (d.parcelasPagas / d.parcelasContratadas)), 0),
+    outros: despesasFiltradas.filter(d => d.categoria === 'outros').reduce((acc, d) => acc + (d.valor * (d.parcelasPagas / d.parcelasContratadas)), 0),
   };
 
   const obrasComDespesas = obras.filter(o => despesas.some(d => d.obraId === o.id));
@@ -119,7 +123,9 @@ export default function FinanceiroPage() {
       mao_de_obra: 'Mão de Obra',
       materiais: 'Materiais',
       equipamentos: 'Equipamentos',
-      servicos_terceirizados: 'Serviços Terceirizados'
+      servicos_terceirizados: 'Serviços Terceirizados',
+      alimentacao: 'Alimentação',
+      outros: 'Outros'
     };
     return labels[cat];
   };
@@ -129,7 +135,9 @@ export default function FinanceiroPage() {
       mao_de_obra: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100',
       materiais: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100',
       equipamentos: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-100',
-      servicos_terceirizados: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100'
+      servicos_terceirizados: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100',
+      alimentacao: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100',
+      outros: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100'
     };
     return colors[cat];
   };
@@ -212,6 +220,8 @@ export default function FinanceiroPage() {
                     <SelectItem value="materiais">Materiais</SelectItem>
                     <SelectItem value="equipamentos">Equipamentos</SelectItem>
                     <SelectItem value="servicos_terceirizados">Serviços Terceirizados</SelectItem>
+                    <SelectItem value="alimentacao">Alimentação</SelectItem>
+                    <SelectItem value="outros">Outros</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -561,6 +571,8 @@ export default function FinanceiroPage() {
                     <SelectItem value="materiais">Materiais</SelectItem>
                     <SelectItem value="equipamentos">Equipamentos</SelectItem>
                     <SelectItem value="servicos_terceirizados">Serviços Terceirizados</SelectItem>
+                    <SelectItem value="alimentacao">Alimentação</SelectItem>
+                    <SelectItem value="outros">Outros</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -6,6 +6,7 @@ type Profile = {
   id: string;
   user_id: string;
   full_name: string;
+  empresa_name: string | null;
   cargo: "admin" | "engenheiro" | "supervisor" | "financeiro";
   avatar_url: string | null;
   telefone: string | null;
@@ -91,6 +92,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await supabase.auth.signOut();
     setSession(null);
     setProfile(null);
+    // Limpar dados do localStorage quando fizer logout
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const keys = Object.keys(window.localStorage);
+      keys.forEach(key => {
+        if (key.includes(':')) { // Chaves isoladas por userId têm formato "userId:key"
+          window.localStorage.removeItem(key);
+        }
+      });
+    }
   };
 
   return (

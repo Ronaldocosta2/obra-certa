@@ -19,22 +19,25 @@ import {
   PieChart, Pie, Cell,
 } from "recharts";
 
-const custoPorCategoria = [
-  { name: 'Materiais', valor: 1530000 },
-  { name: 'Mão de Obra', valor: 420000 },
-  { name: 'Equipamentos', valor: 320000 },
-  { name: 'Serviços', valor: 180000 },
-];
-
 const PIE_COLORS = [
   'hsl(24, 95%, 53%)',
   'hsl(215, 25%, 15%)',
   'hsl(142, 71%, 45%)',
   'hsl(210, 100%, 52%)',
+  'hsl(0, 84%, 60%)',
 ];
 
+const categoriasLabels: Record<string, string> = {
+  mao_de_obra: 'Mão de Obra',
+  materiais: 'Materiais',
+  equipamentos: 'Equipamentos',
+  servicos_terceirizados: 'Serviços Terceirizados',
+  alimentacao: 'Alimentação',
+  outros: 'Outros'
+};
+
 export default function Dashboard() {
-  const { obras } = useAppContext();
+  const { obras, despesas } = useAppContext();
 
   const {
     obrasAtivas,
@@ -44,7 +47,8 @@ export default function Dashboard() {
     totalValor,
     totalPedreiros,
     progressoMedio,
-    progressoObras
+    progressoObras,
+    custoPorCategoria
   } = useMemo(() => {
     const ativas = obras.filter(o => o.status === 'em_andamento');
     const nObras = obras.length;
@@ -63,6 +67,18 @@ export default function Dashboard() {
       progresso: o.progresso,
     }));
 
+    // Calcular custos por categoria a partir dos dados reais
+    const categorias = ['mao_de_obra', 'materiais', 'equipamentos', 'servicos_terceirizados', 'alimentacao', 'outros'];
+    const custosPorCat = categorias.map(cat => {
+      const total = despesas
+        .filter(d => d.categoria === cat)
+        .reduce((sum, d) => sum + d.valor, 0);
+      return {
+        name: categoriasLabels[cat],
+        valor: total
+      };
+    }).filter(c => c.valor > 0); // Mostrar apenas categorias com despesas
+
     return {
       obrasAtivas: ativas,
       totalObras: nObras,
@@ -71,9 +87,10 @@ export default function Dashboard() {
       totalValor: valor,
       totalPedreiros: pedreiros,
       progressoMedio: progMedio,
-      progressoObras: progObras
+      progressoObras: progObras,
+      custoPorCategoria: custosPorCat
     };
-  }, [obras]);
+  }, [obras, despesas]);
 
   const stats = [
     {

@@ -2,6 +2,7 @@ export type ObraStatus = 'planejamento' | 'em_andamento' | 'pausada' | 'finaliza
 
 export interface Obra {
   id: string;
+  userId: string;
   nome: string;
   codigo: string;
   cliente: string;
@@ -24,6 +25,7 @@ export interface Obra {
 
 export interface Atividade {
   id: string;
+  userId: string;
   obraId: string;
   nome: string;
   descricao: string;
@@ -40,6 +42,7 @@ export interface Atividade {
 
 export interface DiarioObra {
   id: string;
+  userId: string;
   obraId: string;
   data: string;
   responsavel: string;
@@ -52,12 +55,13 @@ export interface DiarioObra {
 
 export interface Despesa {
   id: string;
+  userId: string;
   obraId: string;
   tipo: string;
   valor: number;
   data: string;
   fornecedor: string;
-  categoria: 'mao_de_obra' | 'materiais' | 'equipamentos' | 'servicos_terceirizados';
+  categoria: 'mao_de_obra' | 'materiais' | 'equipamentos' | 'servicos_terceirizados' | 'alimentacao' | 'outros';
   parcelasContratadas: number;
   parcelasPagas: number;
 }
