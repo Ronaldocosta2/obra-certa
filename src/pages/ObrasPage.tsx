@@ -12,10 +12,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 
 
-function verificarPlanoAtivo(): boolean {
-  const plano = localStorage.getItem(PLAN_KEY);
-  return plano === 'premium';
-}
 
 export default function ObrasPage() {
   const { obras, addObra } = useAppContext();
