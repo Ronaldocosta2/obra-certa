@@ -73,6 +73,26 @@ export default function ObrasPage() {
     }
   };
 
+  const handleNovaObraClick = () => {
+    setIsNewObraOpen(true);
+  };
+
+  const ativarPlano = () => {
+    if (!chaveInput.trim()) {
+      setChaveErro("Digite uma chave de ativação");
+      return;
+    }
+    // Validação simples de chave
+    if (chaveInput.length < 10) {
+      setChaveErro("Chave inválida");
+      return;
+    }
+    // Simulação de ativação bem-sucedida
+    setShowActivationDialog(false);
+    setChaveInput("");
+    setChaveErro("");
+  };
+
 
   return (
     <div className="space-y-6">
