@@ -2,7 +2,7 @@ import { useAppContext } from "@/contexts/AppContext";
 import { formatCurrency, statusConfig, type ObraStatus } from "@/data/mockData";
 import { Progress } from "@/components/ui/progress";
 import { Link, useSearchParams } from "react-router-dom";
-import { Plus, Search, Lock, CreditCard, Edit2, Trash2 } from "lucide-react";
+import { Plus, Search, Lock, CreditCard, Edit2, Trash2, Filter } from "lucide-react";
 import { useState, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -10,14 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import ObraFormDialog from "@/components/ObraFormDialog";
 
-const PLAN_KEY = 'obra_plano_ativo';
-const ACTIVATION_KEY = 'obra_chave_ativacao';
-const CHAVE_CORRETA = 'OBRA-CERTA-2024';
 
-function verificarPlanoAtivo(): boolean {
-  const plano = localStorage.getItem(PLAN_KEY);
-  return plano === 'premium';
-}
 
 export default function ObrasPage() {
   const { obras, addObra, updateObra, deleteObra } = useAppContext();
@@ -80,29 +73,6 @@ export default function ObrasPage() {
     }
   };
 
-  const handleNovaObraClick = () => {
-    const planoAtivo = verificarPlanoAtivo();
-    const limite = planoAtivo ? Infinity : 2;
-    
-    if (obras.length >= limite) {
-      setShowActivationDialog(true);
-    } else {
-      setIsNewObraOpen(true);
-    }
-  };
-
-  const ativarPlano = () => {
-    if (chaveInput.trim().toUpperCase() === CHAVE_CORRETA) {
-      localStorage.setItem(PLAN_KEY, 'premium');
-      localStorage.setItem(ACTIVATION_KEY, chaveInput.trim());
-      setShowActivationDialog(false);
-      setChaveInput("");
-      setChaveErro("");
-      setIsNewObraOpen(true);
-    } else {
-      setChaveErro("Chave de ativação inválida. Entre em contato para obter sua chave.");
-    }
-  };
 
   return (
     <div className="space-y-6">

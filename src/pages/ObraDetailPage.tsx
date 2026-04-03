@@ -307,7 +307,9 @@ export default function ObraDetailPage() {
                 fornecedor: novaDespesa.fornecedor,
                 categoria: novaDespesa.categoria as any,
                 data: novaDespesa.data,
-                valor: Number(novaDespesa.valor)
+                valor: Number(novaDespesa.valor),
+                parcelasContratadas: 1,
+                parcelasPagas: 0
               });
               setNovaDespesa({ tipo: "", fornecedor: "", categoria: "materiais", valor: "", data: "" });
             }} className="grid md:grid-cols-6 gap-3 items-end">
