@@ -78,29 +78,6 @@ export default function ObrasPage() {
     });
   };
 
-  const handleNovaObraClick = () => {
-    const planoAtivo = verificarPlanoAtivo();
-    const limite = planoAtivo ? Infinity : 2;
-    
-    if (obras.length >= limite) {
-      setShowActivationDialog(true);
-    } else {
-      setIsNewObraOpen(true);
-    }
-  };
-
-  const ativarPlano = () => {
-    if (chaveInput.trim().toUpperCase() === CHAVE_CORRETA) {
-      localStorage.setItem(PLAN_KEY, 'premium');
-      localStorage.setItem(ACTIVATION_KEY, chaveInput.trim());
-      setShowActivationDialog(false);
-      setChaveInput("");
-      setChaveErro("");
-      setIsNewObraOpen(true);
-    } else {
-      setChaveErro("Chave de ativação inválida. Entre em contato para obter sua chave.");
-    }
-  };
 
   return (
     <div className="space-y-6">
