@@ -21,9 +21,6 @@ export default function ObrasPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<ObraStatus | "todos">(statusParam || "todos");
   const [isNewObraOpen, setIsNewObraOpen] = useState(false);
-  const [showActivationDialog, setShowActivationDialog] = useState(false);
-  const [chaveInput, setChaveInput] = useState("");
-  const [chaveErro, setChaveErro] = useState("");
 
   // New Obra Form State
   const [newObra, setNewObra] = useState({
