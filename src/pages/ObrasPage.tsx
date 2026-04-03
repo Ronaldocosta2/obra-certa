@@ -2,7 +2,7 @@ import { useAppContext } from "@/contexts/AppContext";
 import { formatCurrency, statusConfig, type ObraStatus } from "@/data/mockData";
 import { Progress } from "@/components/ui/progress";
 import { Link, useSearchParams } from "react-router-dom";
-import { Plus, Search, Filter, Lock, CreditCard } from "lucide-react";
+import { Plus, Search, Filter } from "lucide-react";
 import { useState, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
