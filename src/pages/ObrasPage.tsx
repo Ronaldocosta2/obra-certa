@@ -11,9 +11,6 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
-const PLAN_KEY = 'obra_plano_ativo';
-const ACTIVATION_KEY = 'obra_chave_ativacao';
-const CHAVE_CORRETA = 'OBRA-CERTA-2024';
 
 function verificarPlanoAtivo(): boolean {
   const plano = localStorage.getItem(PLAN_KEY);
