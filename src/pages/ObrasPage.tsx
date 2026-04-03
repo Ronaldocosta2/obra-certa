@@ -88,7 +88,7 @@ export default function ObrasPage() {
         </div>
         <Dialog open={isNewObraOpen} onOpenChange={setIsNewObraOpen}>
           <DialogTrigger asChild>
-            <Button onClick={handleNovaObraClick} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2.5 rounded-lg font-medium text-sm hover:opacity-90 transition-opacity">
+            <Button onClick={() => setIsNewObraOpen(true)} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2.5 rounded-lg font-medium text-sm hover:opacity-90 transition-opacity">
               <Plus className="w-4 h-4" />
               Nova obra
             </Button>
