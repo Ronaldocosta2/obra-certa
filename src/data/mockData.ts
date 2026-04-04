@@ -198,7 +198,10 @@ export function formatCurrency(value: number): string {
 }
 
 export function formatDate(date: string): string {
-  return new Date(date).toLocaleDateString('pt-BR');
+  if (!date) return '—';
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return '—';
+  return d.toLocaleDateString('pt-BR');
 }
 
 export const statusConfig: Record<ObraStatus, { label: string; color: string }> = {
