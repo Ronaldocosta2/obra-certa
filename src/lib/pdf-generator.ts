@@ -3,7 +3,7 @@ import jsPDF from 'jspdf';
 import { Orcamento } from '@/pages/OrcamentosPage';
 import { formatCurrency, formatDate } from '@/data/mockData';
 
-export async function generateOrcamentoPDF(orcamento: Orcamento) {
+export async function generateOrcamentoPDF(orcamento: Orcamento, empresaName?: string) {
   // Criar elemento temporário para renderizar o conteúdo
   const tempDiv = document.createElement('div');
   tempDiv.style.position = 'absolute';
