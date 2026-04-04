@@ -66,7 +66,7 @@ export interface Despesa {
   parcelasPagas: number;
 }
 
-export const mockObras: Obra[] = [
+export const mockObras: Omit<Obra, 'userId'>[] = [
   {
     id: '1',
     nome: 'Edifício Aurora Residencial',
