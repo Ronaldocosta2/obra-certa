@@ -32,7 +32,7 @@ export async function generateOrcamentoPDF(orcamento: Orcamento, empresaName?: s
       <div style="border-bottom: 3px solid #0066cc; padding-bottom: 15px; margin-bottom: 20px;">
         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
           <div>
-            <h1 style="margin: 0; font-size: 24px; color: #0066cc;">OBRA CERTA</h1>
+            <h1 style="margin: 0; font-size: 24px; color: #0066cc;">${empresaName || 'ObraControl'}</h1>
             <p style="margin: 5px 0 0 0; font-size: 12px; color: #666;">Gestão de Projetos e Obras</p>
           </div>
           <div style="text-align: right;">
