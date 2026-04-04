@@ -127,10 +127,20 @@ const CronogramaPage = () => {
   // Gantt date range
   const ganttRange = useMemo(() => {
     if (!obra) return { start: "", end: "", totalDays: 1 };
+    
+    const today = new Date().toISOString().slice(0, 10);
+    const obraStart = obra.dataInicio || today;
+    const obraEnd = obra.dataPrevistaConclusao || today;
+    
     const allTasks = atividades.filter((a) => a.obraId === selectedObraId);
     if (allTasks.length === 0) {
-      const startD = new Date(obra.dataInicio);
-      const endD = new Date(obra.dataPrevistaConclusao);
+      const startD = new Date(obraStart);
+      const endD = new Date(obraEnd);
+      if (isNaN(startD.getTime()) || isNaN(endD.getTime())) {
+        const fallback = new Date();
+        const fallbackEnd = new Date(Date.now() + 90 * 86400000);
+        return { start: fallback.toISOString().slice(0, 10), end: fallbackEnd.toISOString().slice(0, 10), totalDays: 90 };
+      }
       startD.setDate(startD.getDate() - 7);
       endD.setDate(endD.getDate() + 14);
       return { 
@@ -139,15 +149,19 @@ const CronogramaPage = () => {
         totalDays: diffDays(startD.toISOString().slice(0, 10), endD.toISOString().slice(0, 10)) || 1 
       };
     }
-    const starts = allTasks.map((t) => t.dataInicio).sort();
-    const ends = allTasks.map((t) => t.dataFim).sort();
+    const starts = allTasks.map((t) => t.dataInicio).filter(Boolean).sort();
+    const ends = allTasks.map((t) => t.dataFim).filter(Boolean).sort();
     
-    // Create base dates and add padding for the visual chart (7 days before, 14 days after)
-    const rawStart = starts[0] < obra.dataInicio ? starts[0] : obra.dataInicio;
-    const rawEnd = ends[ends.length - 1] > obra.dataPrevistaConclusao ? ends[ends.length - 1] : obra.dataPrevistaConclusao;
+    const rawStart = (starts[0] && starts[0] < obraStart) ? starts[0] : obraStart;
+    const rawEnd = (ends.length > 0 && ends[ends.length - 1] > obraEnd) ? ends[ends.length - 1] : obraEnd;
     
     const startObj = new Date(rawStart);
     const endObj = new Date(rawEnd);
+    if (isNaN(startObj.getTime()) || isNaN(endObj.getTime())) {
+      const fallback = new Date();
+      const fallbackEnd = new Date(Date.now() + 90 * 86400000);
+      return { start: fallback.toISOString().slice(0, 10), end: fallbackEnd.toISOString().slice(0, 10), totalDays: 90 };
+    }
     startObj.setDate(startObj.getDate() - 7);
     endObj.setDate(endObj.getDate() + 14);
 
