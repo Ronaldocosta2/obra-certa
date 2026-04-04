@@ -19,6 +19,7 @@ export type Database = {
           avatar_url: string | null
           cargo: Database["public"]["Enums"]["app_role"]
           created_at: string
+          empresa_name: string | null
           full_name: string
           id: string
           telefone: string | null
@@ -29,6 +30,7 @@ export type Database = {
           avatar_url?: string | null
           cargo?: Database["public"]["Enums"]["app_role"]
           created_at?: string
+          empresa_name?: string | null
           full_name?: string
           id?: string
           telefone?: string | null
@@ -39,6 +41,7 @@ export type Database = {
           avatar_url?: string | null
           cargo?: Database["public"]["Enums"]["app_role"]
           created_at?: string
+          empresa_name?: string | null
           full_name?: string
           id?: string
           telefone?: string | null
