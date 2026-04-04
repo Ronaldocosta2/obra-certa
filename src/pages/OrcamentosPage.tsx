@@ -1,4 +1,5 @@
 import { useAppContext } from "@/contexts/AppContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,13 +10,17 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Plus, AlertCircle, CheckCircle, Clock, Phone, TrendingUp, FileText } from "lucide-react";
+import { Plus, AlertCircle, CheckCircle, Clock, Phone, TrendingUp, FileText, Download } from "lucide-react";
 import { formatCurrency, formatDate } from "@/data/mockData";
+import { useToast } from "@/components/ui/use-toast";
+import OrcamentoFormDialog from "@/components/OrcamentoFormDialog";
+import { generateOrcamentoPDF } from "@/lib/pdf-generator";
 
 export type StatusOrcamento = 'novo' | 'em_negociacao' | 'aprovado' | 'reprovado' | 'expirado' | 'convertido';
 
 export interface Orcamento {
   id: string;
+  userId: string;
   cliente: string;
   telefone: string;
   email: string;
@@ -31,14 +36,28 @@ export interface Orcamento {
 
 export default function OrcamentosPage() {
   const { addObra, obras } = useAppContext();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const currentUserId = user?.id;
+
+  const getStorageKey = (key: string) => {
+    if (!currentUserId) return null;
+    return `${currentUserId}:${key}`;
+  };
+
   const [orcamentos, setOrcamentos] = useState<Orcamento[]>(() => {
-    const saved = localStorage.getItem('orcamentos');
+    if (!currentUserId) return [];
+    const storageKey = getStorageKey('orcamentos');
+    if (!storageKey) return [];
+    const saved = localStorage.getItem(storageKey);
     return saved ? JSON.parse(saved) : [];
   });
   const [isNewOrcamentoOpen, setIsNewOrcamentoOpen] = useState(false);
+  const [editingOrcamentoId, setEditingOrcamentoId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<StatusOrcamento | "todos">("todos");
   const [notificationSent, setNotificationSent] = useState(() => {
-    return localStorage.getItem('orcamento_notification_sent') === 'true';
+    if (!currentUserId) return false;
+    return localStorage.getItem(`${currentUserId}:orcamento_notification_sent`) === 'true';
   });
 
   const [novoOrcamento, setNovoOrcamento] = useState({
@@ -65,7 +84,9 @@ export default function OrcamentosPage() {
           icon: "/favicon.ico"
         });
         setNotificationSent(true);
-        localStorage.setItem('orcamento_notification_sent', 'true');
+        if (currentUserId) {
+          localStorage.setItem(`${currentUserId}:orcamento_notification_sent`, 'true');
+        }
       } else if (Notification.permission !== "denied") {
         Notification.requestPermission().then(permission => {
           if (permission === "granted") {
@@ -74,7 +95,9 @@ export default function OrcamentosPage() {
               icon: "/favicon.ico"
             });
             setNotificationSent(true);
-            localStorage.setItem('orcamento_notification_sent', 'true');
+            if (currentUserId) {
+              localStorage.setItem(`${currentUserId}:orcamento_notification_sent`, 'true');
+            }
           }
         });
       }
@@ -83,13 +106,20 @@ export default function OrcamentosPage() {
 
   const saveOrcamentos = (newOrcamentos: Orcamento[]) => {
     setOrcamentos(newOrcamentos);
-    localStorage.setItem('orcamentos', JSON.stringify(newOrcamentos));
+    if (currentUserId) {
+      const storageKey = getStorageKey('orcamentos');
+      if (storageKey) {
+        localStorage.setItem(storageKey, JSON.stringify(newOrcamentos));
+      }
+    }
   };
 
   const handleCreateOrcamento = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!currentUserId) return;
     const orcamento: Orcamento = {
       id: crypto.randomUUID(),
+      userId: currentUserId,
       ...novoOrcamento,
       dataCriacao: new Date().toISOString().split('T')[0],
       status: 'novo',
@@ -121,12 +151,27 @@ export default function OrcamentosPage() {
         });
       }
       setNotificationSent(false);
-      localStorage.setItem('orcamento_notification_sent', 'false');
+      if (currentUserId) {
+        localStorage.setItem(`${currentUserId}:orcamento_notification_sent`, 'false');
+      }
     }
   };
 
   const deleteOrcamento = (id: string) => {
     saveOrcamentos(orcamentos.filter(o => o.id !== id));
+  };
+
+  const handleEditOrcamento = (data: any) => {
+    const updated = orcamentos.map(o => 
+      o.id === editingOrcamentoId ? { ...o, ...data } : o
+    );
+    saveOrcamentos(updated);
+    setEditingOrcamentoId(null);
+    toast({
+      title: "Sucesso",
+      description: "Orçamento atualizado com sucesso!",
+      duration: 3000
+    });
   };
 
   const handleNovaOrcamentoClick = () => {
@@ -378,7 +423,7 @@ export default function OrcamentosPage() {
                         {orcamento.descricao && (
                           <p className="text-sm text-muted-foreground">{orcamento.descricao}</p>
                         )}
-                        <div className="flex gap-2 pt-2 border-t">
+                        <div className="flex gap-2 pt-2 border-t flex-wrap">
                           <Select value={orcamento.status} onValueChange={(v) => updateStatus(orcamento.id, v as StatusOrcamento)}>
                             <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
                             <SelectContent>
@@ -390,6 +435,23 @@ export default function OrcamentosPage() {
                               <SelectItem value="expirado">Expirado</SelectItem>
                             </SelectContent>
                           </Select>
+                          <OrcamentoFormDialog
+                            mode="edit"
+                            initialData={orcamento}
+                            open={editingOrcamentoId === orcamento.id}
+                            onOpenChange={(open) => setEditingOrcamentoId(open ? orcamento.id : null)}
+                            onSubmit={handleEditOrcamento}
+                            trigger={<Button variant="outline" size="sm">Editar</Button>}
+                          />
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => generateOrcamentoPDF(orcamento)}
+                            className="flex items-center gap-1"
+                          >
+                            <Download className="w-4 h-4" />
+                            PDF
+                          </Button>
                           {orcamento.status === 'aprovado' && (
                             <Button size="sm" onClick={() => {
                               const novaObra = {
@@ -464,6 +526,13 @@ export default function OrcamentosPage() {
                                 <SelectItem value="reprovado">Reprovado</SelectItem>
                               </SelectContent>
                             </Select>
+                            <Button 
+                              variant="outline"
+                              size="sm"
+                              onClick={() => generateOrcamentoPDF(orcamento)}
+                            >
+                              <Download className="w-4 h-4" />
+                            </Button>
                             <Button variant="outline" size="sm" onClick={() => {
                               const updated = orcamentos.map(o => 
                                 o.id === orcamento.id ? { ...o, diasSemContato: 0 } : o
@@ -499,8 +568,17 @@ export default function OrcamentosPage() {
                         </span>
                       </div>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="space-y-3">
                       <p className="text-xl font-bold text-green-600">{formatCurrency(orcamento.valor)}</p>
+                      <Button 
+                        size="sm"
+                        variant="outline"
+                        onClick={() => generateOrcamentoPDF(orcamento)}
+                        className="flex items-center gap-1 w-full"
+                      >
+                        <Download className="w-4 h-4" />
+                        Gerar PDF
+                      </Button>
                     </CardContent>
                   </Card>
                 ))}
@@ -526,20 +604,29 @@ export default function OrcamentosPage() {
                         </div>
                       </CardHeader>
                       <CardContent>
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between gap-3">
                           <div>
                             <p className="text-lg font-bold">{formatCurrency(orcamento.valor)}</p>
                             {orcamento.telefone && <p className="text-sm text-muted-foreground">{orcamento.telefone}</p>}
                           </div>
-                          <Button onClick={() => {
-                            const updated = orcamentos.map(o => 
-                              o.id === orcamento.id ? { ...o, diasSemContato: 0, status: 'em_negociacao' as const } : o
-                            );
-                            saveOrcamentos(updated);
-                          }}>
-                            <Phone className="w-4 h-4 mr-2" />
-                            Contatar Agora
-                          </Button>
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm"
+                              variant="outline"
+                              onClick={() => generateOrcamentoPDF(orcamento)}
+                            >
+                              <Download className="w-4 h-4" />
+                            </Button>
+                            <Button size="sm" onClick={() => {
+                              const updated = orcamentos.map(o => 
+                                o.id === orcamento.id ? { ...o, diasSemContato: 0, status: 'em_negociacao' as const } : o
+                              );
+                              saveOrcamentos(updated);
+                            }}>
+                              <Phone className="w-4 h-4 mr-2" />
+                              Contatar Agora
+                            </Button>
+                          </div>
                         </div>
                       </CardContent>
                     </Card>

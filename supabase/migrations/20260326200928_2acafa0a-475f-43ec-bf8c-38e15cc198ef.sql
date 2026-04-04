@@ -6,6 +6,7 @@ CREATE TABLE public.profiles (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
   full_name TEXT NOT NULL DEFAULT '',
+  empresa_name TEXT,
   cargo app_role NOT NULL DEFAULT 'engenheiro',
   avatar_url TEXT,
   telefone TEXT,
@@ -60,8 +61,12 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
-  INSERT INTO public.profiles (user_id, full_name)
-  VALUES (NEW.id, COALESCE(NEW.raw_user_meta_data->>'full_name', ''));
+  INSERT INTO public.profiles (user_id, full_name, empresa_name)
+  VALUES (
+    NEW.id, 
+    COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
+    NEW.raw_user_meta_data->>'empresa_name'
+  );
   RETURN NEW;
 END;
 $$;

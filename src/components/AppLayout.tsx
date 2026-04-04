@@ -64,7 +64,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
           <div>
             <h1 className="text-base font-bold text-sidebar-accent-foreground font-heading">
-              ObraControl
+              {profile?.empresa_name || "ObraControl"}
             </h1>
             <p className="text-xs text-sidebar-muted">Gestão de Obras</p>
           </div>

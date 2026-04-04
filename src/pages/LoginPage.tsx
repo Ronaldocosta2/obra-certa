@@ -18,6 +18,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [empresaName, setEmpresaName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -48,7 +49,10 @@ export default function LoginPage() {
           email,
           password,
           options: {
-            data: { full_name: fullName },
+            data: { 
+              full_name: fullName,
+              empresa_name: empresaName 
+            },
             emailRedirectTo: window.location.origin,
           },
         });
@@ -104,16 +108,28 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             {view === "signup" && (
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Nome completo</Label>
-                <Input
-                  id="fullName"
-                  placeholder="João Silva"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required
-                />
-              </div>
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">Nome completo</Label>
+                  <Input
+                    id="fullName"
+                    placeholder="João Silva"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="empresaName">Nome da empresa</Label>
+                  <Input
+                    id="empresaName"
+                    placeholder="Ex: Construtora Silva LTDA"
+                    value={empresaName}
+                    onChange={(e) => setEmpresaName(e.target.value)}
+                    required
+                  />
+                </div>
+              </>
             )}
 
             <div className="space-y-2">
