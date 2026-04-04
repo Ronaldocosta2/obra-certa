@@ -185,7 +185,7 @@ export const mockAtividades: Omit<Atividade, 'userId'>[] = [
   { id: 'a8', obraId: '1', nome: 'Paisagismo', descricao: 'Área externa e paisagismo', responsavel: 'Eq. Paisagismo', dataInicio: '2025-07-01', dataFim: '2025-09-30', duracao: 91, percentualConcluido: 0, dependencias: ['a7'], status: 'pendente', ordem: 7 },
 ];
 
-export const mockDespesas: Despesa[] = [
+export const mockDespesas: Omit<Despesa, 'userId'>[] = [
   { id: 'd1', obraId: '1', tipo: 'Concreto Usinado', valor: 850000, data: '2024-06-15', fornecedor: 'Concreteira ABC', categoria: 'materiais', parcelasContratadas: 3, parcelasPagas: 3 },
   { id: 'd2', obraId: '1', tipo: 'Mão de obra - Fundações', valor: 420000, data: '2024-05-01', fornecedor: 'Equipe Própria', categoria: 'mao_de_obra', parcelasContratadas: 4, parcelasPagas: 4 },
   { id: 'd3', obraId: '1', tipo: 'Aço CA-50', valor: 680000, data: '2024-07-20', fornecedor: 'Gerdau', categoria: 'materiais', parcelasContratadas: 2, parcelasPagas: 1 },
