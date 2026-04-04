@@ -189,8 +189,7 @@ const CronogramaPage = () => {
   };
 
   const addTask = () => {
-    const newTask: Atividade = {
-      id: crypto.randomUUID(),
+    const newTask = {
       obraId: selectedObraId,
       nome: "Nova Atividade",
       descricao: "",
@@ -199,12 +198,11 @@ const CronogramaPage = () => {
       dataFim: new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10),
       duracao: 7,
       percentualConcluido: 0,
-      dependencias: [],
-      status: "pendente",
+      dependencias: [] as string[],
+      status: "pendente" as const,
       ordem: atividades.length,
     };
-    addAtividade(newTask as unknown as Omit<Atividade, 'id'>);
-    setEditingCell({ id: newTask.id, field: "nome" });
+    addAtividade(newTask);
     toast.success("Atividade criada");
   };
 
