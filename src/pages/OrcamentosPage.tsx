@@ -36,7 +36,7 @@ export interface Orcamento {
 
 export default function OrcamentosPage() {
   const { addObra, obras } = useAppContext();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { toast } = useToast();
   const currentUserId = user?.id;
 
