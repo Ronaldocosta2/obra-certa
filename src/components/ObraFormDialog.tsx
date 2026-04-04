@@ -12,7 +12,7 @@ interface ObraFormDialogProps {
   initialData?: Obra;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  onSubmit: (data: Omit<Obra, 'id' | 'progresso' | 'custoRealizado' | 'tarefasTotal' | 'tarefasConcluidas' | 'tarefasAtrasadas' | 'pedreirosAtuantes'>) => void;
+  onSubmit: (data: Omit<Obra, 'id' | 'userId' | 'progresso' | 'custoRealizado' | 'tarefasTotal' | 'tarefasConcluidas' | 'tarefasAtrasadas' | 'pedreirosAtuantes'>) => void;
   trigger?: React.ReactNode;
 }
 
@@ -29,7 +29,7 @@ export default function ObraFormDialog({
   const open = isControlled ? controlledOpen : internalOpen;
   const setOpen = isControlled ? onControlledOpenChange! : setInternalOpen;
 
-  const [formData, setFormData] = useState<Omit<Obra, 'id' | 'progresso' | 'custoRealizado' | 'tarefasTotal' | 'tarefasConcluidas' | 'tarefasAtrasadas' | 'pedreirosAtuantes'>>({
+  const [formData, setFormData] = useState<Omit<Obra, 'id' | 'userId' | 'progresso' | 'custoRealizado' | 'tarefasTotal' | 'tarefasConcluidas' | 'tarefasAtrasadas' | 'pedreirosAtuantes'>>({
     nome: initialData?.nome || '',
     codigo: initialData?.codigo || '',
     cliente: initialData?.cliente || '',

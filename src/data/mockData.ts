@@ -66,7 +66,7 @@ export interface Despesa {
   parcelasPagas: number;
 }
 
-export const mockObras: Obra[] = [
+export const mockObras: Omit<Obra, 'userId'>[] = [
   {
     id: '1',
     nome: 'Edifício Aurora Residencial',
@@ -174,7 +174,7 @@ export const mockObras: Obra[] = [
   },
 ];
 
-export const mockAtividades: Atividade[] = [
+export const mockAtividades: Omit<Atividade, 'userId'>[] = [
   { id: 'a1', obraId: '1', nome: 'Fundação', descricao: 'Execução das fundações', responsavel: 'Eq. Fundações', dataInicio: '2024-03-01', dataFim: '2024-05-15', duracao: 75, percentualConcluido: 100, dependencias: [], status: 'concluida', ordem: 0 },
   { id: 'a2', obraId: '1', nome: 'Estrutura - Térreo ao 5º', descricao: 'Estrutura dos primeiros pavimentos', responsavel: 'Eq. Estrutura', dataInicio: '2024-05-16', dataFim: '2024-08-30', duracao: 106, percentualConcluido: 100, dependencias: ['a1'], status: 'concluida', ordem: 1 },
   { id: 'a3', obraId: '1', nome: 'Estrutura - 6º ao 10º', descricao: 'Estrutura dos pavimentos intermediários', responsavel: 'Eq. Estrutura', dataInicio: '2024-09-01', dataFim: '2024-12-15', duracao: 105, percentualConcluido: 85, dependencias: ['a2'], status: 'em_andamento', ordem: 2 },
@@ -185,7 +185,7 @@ export const mockAtividades: Atividade[] = [
   { id: 'a8', obraId: '1', nome: 'Paisagismo', descricao: 'Área externa e paisagismo', responsavel: 'Eq. Paisagismo', dataInicio: '2025-07-01', dataFim: '2025-09-30', duracao: 91, percentualConcluido: 0, dependencias: ['a7'], status: 'pendente', ordem: 7 },
 ];
 
-export const mockDespesas: Despesa[] = [
+export const mockDespesas: Omit<Despesa, 'userId'>[] = [
   { id: 'd1', obraId: '1', tipo: 'Concreto Usinado', valor: 850000, data: '2024-06-15', fornecedor: 'Concreteira ABC', categoria: 'materiais', parcelasContratadas: 3, parcelasPagas: 3 },
   { id: 'd2', obraId: '1', tipo: 'Mão de obra - Fundações', valor: 420000, data: '2024-05-01', fornecedor: 'Equipe Própria', categoria: 'mao_de_obra', parcelasContratadas: 4, parcelasPagas: 4 },
   { id: 'd3', obraId: '1', tipo: 'Aço CA-50', valor: 680000, data: '2024-07-20', fornecedor: 'Gerdau', categoria: 'materiais', parcelasContratadas: 2, parcelasPagas: 1 },

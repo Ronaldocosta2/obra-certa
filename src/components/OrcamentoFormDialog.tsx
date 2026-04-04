@@ -26,7 +26,7 @@ interface OrcamentoFormDialogProps {
   initialData?: Orcamento;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  onSubmit: (data: Omit<Orcamento, 'id' | 'dataCriacao' | 'diasSemContato' | 'status'>) => void;
+  onSubmit: (data: Omit<Orcamento, 'id' | 'userId' | 'dataCriacao' | 'diasSemContato' | 'status'>) => void;
   trigger?: React.ReactNode;
 }
 

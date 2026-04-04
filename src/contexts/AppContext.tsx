@@ -32,17 +32,17 @@ interface AppContextType {
   deleteAtividade: (id: string) => void;
 
   despesas: Despesa[];
-  addDespesa: (despesa: Omit<Despesa, 'id'>) => void;
+  addDespesa: (despesa: Omit<Despesa, 'id' | 'userId'>) => void;
   updateDespesa: (id: string, despesa: Partial<Despesa>) => void;
   deleteDespesa: (id: string) => void;
 
   diarios: DiarioObra[];
-  addDiario: (diario: Omit<DiarioObra, 'id'>) => void;
+  addDiario: (diario: Omit<DiarioObra, 'id' | 'userId'>) => void;
   updateDiario: (id: string, diario: Partial<DiarioObra>) => void;
   deleteDiario: (id: string) => void;
 
   documentos: Documento[];
-  addDocumento: (doc: Omit<Documento, 'id'>) => void;
+  addDocumento: (doc: Omit<Documento, 'id' | 'userId'>) => void;
   deleteDocumento: (id: string) => void;
 }
 

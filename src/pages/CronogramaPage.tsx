@@ -189,8 +189,7 @@ const CronogramaPage = () => {
   };
 
   const addTask = () => {
-    const newTask: Atividade = {
-      id: crypto.randomUUID(),
+    const newTask = {
       obraId: selectedObraId,
       nome: "Nova Atividade",
       descricao: "",
@@ -199,20 +198,18 @@ const CronogramaPage = () => {
       dataFim: new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10),
       duracao: 7,
       percentualConcluido: 0,
-      dependencias: [],
-      status: "pendente",
+      dependencias: [] as string[],
+      status: "pendente" as const,
       ordem: atividades.length,
     };
-    addAtividade(newTask as unknown as Omit<Atividade, 'id'>);
-    setEditingCell({ id: newTask.id, field: "nome" });
+    addAtividade(newTask);
     toast.success("Atividade criada");
   };
 
   const addSubtask = (parentId: string) => {
     const parent = atividades.find((t) => t.id === parentId);
     if (!parent) return;
-    const newTask: Atividade = {
-      id: crypto.randomUUID(),
+    const newTask = {
       obraId: selectedObraId,
       nome: "Nova Subtarefa",
       descricao: "",
@@ -221,14 +218,13 @@ const CronogramaPage = () => {
       dataFim: parent.dataFim,
       duracao: parent.duracao,
       percentualConcluido: 0,
-      dependencias: [],
-      status: "pendente",
+      dependencias: [] as string[],
+      status: "pendente" as const,
       parentId,
       ordem: atividades.length,
     };
-    addAtividade(newTask as unknown as Omit<Atividade, 'id'>);
+    addAtividade(newTask);
     setExpandedTasks((prev) => new Set(prev).add(parentId));
-    setEditingCell({ id: newTask.id, field: "nome" });
     setAddingSubtaskFor(null);
     toast.success("Subtarefa criada");
   };
