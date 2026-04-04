@@ -36,7 +36,7 @@ export interface Orcamento {
 
 export default function OrcamentosPage() {
   const { addObra, obras } = useAppContext();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { toast } = useToast();
   const currentUserId = user?.id;
 
@@ -446,7 +446,7 @@ export default function OrcamentosPage() {
                           <Button 
                             size="sm" 
                             variant="outline"
-                            onClick={() => generateOrcamentoPDF(orcamento)}
+                            onClick={() => generateOrcamentoPDF(orcamento, profile?.empresa_name || undefined)}
                             className="flex items-center gap-1"
                           >
                             <Download className="w-4 h-4" />
@@ -529,7 +529,7 @@ export default function OrcamentosPage() {
                             <Button 
                               variant="outline"
                               size="sm"
-                              onClick={() => generateOrcamentoPDF(orcamento)}
+                              onClick={() => generateOrcamentoPDF(orcamento, profile?.empresa_name || undefined)}
                             >
                               <Download className="w-4 h-4" />
                             </Button>
@@ -573,7 +573,7 @@ export default function OrcamentosPage() {
                       <Button 
                         size="sm"
                         variant="outline"
-                        onClick={() => generateOrcamentoPDF(orcamento)}
+                        onClick={() => generateOrcamentoPDF(orcamento, profile?.empresa_name || undefined)}
                         className="flex items-center gap-1 w-full"
                       >
                         <Download className="w-4 h-4" />
@@ -613,7 +613,7 @@ export default function OrcamentosPage() {
                             <Button 
                               size="sm"
                               variant="outline"
-                              onClick={() => generateOrcamentoPDF(orcamento)}
+                              onClick={() => generateOrcamentoPDF(orcamento, profile?.empresa_name || undefined)}
                             >
                               <Download className="w-4 h-4" />
                             </Button>

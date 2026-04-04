@@ -3,7 +3,7 @@ import jsPDF from 'jspdf';
 import { Orcamento } from '@/pages/OrcamentosPage';
 import { formatCurrency, formatDate } from '@/data/mockData';
 
-export async function generateOrcamentoPDF(orcamento: Orcamento) {
+export async function generateOrcamentoPDF(orcamento: Orcamento, empresaName?: string) {
   // Criar elemento temporário para renderizar o conteúdo
   const tempDiv = document.createElement('div');
   tempDiv.style.position = 'absolute';
@@ -32,7 +32,7 @@ export async function generateOrcamentoPDF(orcamento: Orcamento) {
       <div style="border-bottom: 3px solid #0066cc; padding-bottom: 15px; margin-bottom: 20px;">
         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
           <div>
-            <h1 style="margin: 0; font-size: 24px; color: #0066cc;">OBRA CERTA</h1>
+            <h1 style="margin: 0; font-size: 24px; color: #0066cc;">${empresaName || 'ObraControl'}</h1>
             <p style="margin: 5px 0 0 0; font-size: 12px; color: #666;">Gestão de Projetos e Obras</p>
           </div>
           <div style="text-align: right;">
@@ -110,7 +110,7 @@ export async function generateOrcamentoPDF(orcamento: Orcamento) {
 
       <!-- Footer -->
       <div style="border-top: 1px solid #ddd; margin-top: 30px; padding-top: 15px; text-align: center; font-size: 11px; color: #999;">
-        <p style="margin: 0;">Este documento foi gerado automaticamente pelo sistema OBRA CERTA.</p>
+        <p style="margin: 0;">Este documento foi gerado automaticamente pelo sistema ${empresaName || 'ObraControl'}.</p>
         <p style="margin: 5px 0 0 0;">Gerado em ${new Date().toLocaleString('pt-BR')}</p>
       </div>
     </div>
