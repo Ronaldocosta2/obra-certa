@@ -12,7 +12,7 @@ interface ObraFormDialogProps {
   initialData?: Obra;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  onSubmit: (data: Omit<Obra, 'id' | 'progresso' | 'custoRealizado' | 'tarefasTotal' | 'tarefasConcluidas' | 'tarefasAtrasadas' | 'pedreirosAtuantes'>) => void;
+  onSubmit: (data: Omit<Obra, 'id' | 'userId' | 'progresso' | 'custoRealizado' | 'tarefasTotal' | 'tarefasConcluidas' | 'tarefasAtrasadas' | 'pedreirosAtuantes'>) => void;
   trigger?: React.ReactNode;
 }
 
