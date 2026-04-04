@@ -6,6 +6,7 @@ type Profile = {
   id: string;
   user_id: string;
   full_name: string;
+  empresa_name: string | null;
   cargo: "admin" | "engenheiro" | "supervisor" | "financeiro";
   avatar_url: string | null;
   telefone: string | null;
