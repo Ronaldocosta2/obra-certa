@@ -42,7 +42,7 @@ interface AppContextType {
   deleteDiario: (id: string) => void;
 
   documentos: Documento[];
-  addDocumento: (doc: Omit<Documento, 'id'>) => void;
+  addDocumento: (doc: Omit<Documento, 'id' | 'userId'>) => void;
   deleteDocumento: (id: string) => void;
 }
 

@@ -209,8 +209,7 @@ const CronogramaPage = () => {
   const addSubtask = (parentId: string) => {
     const parent = atividades.find((t) => t.id === parentId);
     if (!parent) return;
-    const newTask: Atividade = {
-      id: crypto.randomUUID(),
+    const newTask = {
       obraId: selectedObraId,
       nome: "Nova Subtarefa",
       descricao: "",
@@ -219,14 +218,13 @@ const CronogramaPage = () => {
       dataFim: parent.dataFim,
       duracao: parent.duracao,
       percentualConcluido: 0,
-      dependencias: [],
-      status: "pendente",
+      dependencias: [] as string[],
+      status: "pendente" as const,
       parentId,
       ordem: atividades.length,
     };
-    addAtividade(newTask as unknown as Omit<Atividade, 'id'>);
+    addAtividade(newTask);
     setExpandedTasks((prev) => new Set(prev).add(parentId));
-    setEditingCell({ id: newTask.id, field: "nome" });
     setAddingSubtaskFor(null);
     toast.success("Subtarefa criada");
   };
