@@ -122,7 +122,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 min-w-0">
+      <main className="flex-1 min-w-0 flex flex-col min-h-screen">
         {/* Top bar */}
         <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b border-border px-4 lg:px-8 h-14 flex items-center gap-4">
           <button
@@ -140,9 +140,24 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </header>
 
         {/* Page content */}
-        <div className="p-4 lg:p-8 animate-fade-in">
+        <div className="flex-1 p-4 lg:p-8 animate-fade-in">
           {children}
         </div>
+
+        {/* Footer */}
+        <footer className="py-3 px-4 text-center border-t border-border/40">
+          <p className="text-[11px] text-muted-foreground/60">
+            © {new Date().getFullYear()} Desenvolvido por{' '}
+            <a
+              href="https://orkestia.com.br"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-muted-foreground transition-colors"
+            >
+              Orkestia
+            </a>
+          </p>
+        </footer>
       </main>
     </div>
   );
