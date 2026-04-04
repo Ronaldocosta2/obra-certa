@@ -47,7 +47,10 @@ const ganttBarColors: Record<TaskStatus, string> = {
 };
 
 function diffDays(a: string, b: string) {
-  return Math.ceil((new Date(b).getTime() - new Date(a).getTime()) / 86400000);
+  const da = new Date(a);
+  const db = new Date(b);
+  if (isNaN(da.getTime()) || isNaN(db.getTime())) return 1;
+  return Math.ceil((db.getTime() - da.getTime()) / 86400000);
 }
 
 function autoDetectStatus(task: Atividade): TaskStatus {
