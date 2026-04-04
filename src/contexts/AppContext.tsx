@@ -32,7 +32,7 @@ interface AppContextType {
   deleteAtividade: (id: string) => void;
 
   despesas: Despesa[];
-  addDespesa: (despesa: Omit<Despesa, 'id'>) => void;
+  addDespesa: (despesa: Omit<Despesa, 'id' | 'userId'>) => void;
   updateDespesa: (id: string, despesa: Partial<Despesa>) => void;
   deleteDespesa: (id: string) => void;
 
