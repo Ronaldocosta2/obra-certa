@@ -37,7 +37,7 @@ interface AppContextType {
   deleteDespesa: (id: string) => void;
 
   diarios: DiarioObra[];
-  addDiario: (diario: Omit<DiarioObra, 'id'>) => void;
+  addDiario: (diario: Omit<DiarioObra, 'id' | 'userId'>) => void;
   updateDiario: (id: string, diario: Partial<DiarioObra>) => void;
   deleteDiario: (id: string) => void;
 
