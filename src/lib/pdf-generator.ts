@@ -110,7 +110,7 @@ export async function generateOrcamentoPDF(orcamento: Orcamento, empresaName?: s
 
       <!-- Footer -->
       <div style="border-top: 1px solid #ddd; margin-top: 30px; padding-top: 15px; text-align: center; font-size: 11px; color: #999;">
-        <p style="margin: 0;">Este documento foi gerado automaticamente pelo sistema OBRA CERTA.</p>
+        <p style="margin: 0;">Este documento foi gerado automaticamente pelo sistema ${empresaName || 'ObraControl'}.</p>
         <p style="margin: 5px 0 0 0;">Gerado em ${new Date().toLocaleString('pt-BR')}</p>
       </div>
     </div>
