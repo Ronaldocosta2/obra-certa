@@ -174,7 +174,7 @@ export const mockObras: Omit<Obra, 'userId'>[] = [
   },
 ];
 
-export const mockAtividades: Atividade[] = [
+export const mockAtividades: Omit<Atividade, 'userId'>[] = [
   { id: 'a1', obraId: '1', nome: 'Fundação', descricao: 'Execução das fundações', responsavel: 'Eq. Fundações', dataInicio: '2024-03-01', dataFim: '2024-05-15', duracao: 75, percentualConcluido: 100, dependencias: [], status: 'concluida', ordem: 0 },
   { id: 'a2', obraId: '1', nome: 'Estrutura - Térreo ao 5º', descricao: 'Estrutura dos primeiros pavimentos', responsavel: 'Eq. Estrutura', dataInicio: '2024-05-16', dataFim: '2024-08-30', duracao: 106, percentualConcluido: 100, dependencias: ['a1'], status: 'concluida', ordem: 1 },
   { id: 'a3', obraId: '1', nome: 'Estrutura - 6º ao 10º', descricao: 'Estrutura dos pavimentos intermediários', responsavel: 'Eq. Estrutura', dataInicio: '2024-09-01', dataFim: '2024-12-15', duracao: 105, percentualConcluido: 85, dependencias: ['a2'], status: 'em_andamento', ordem: 2 },
